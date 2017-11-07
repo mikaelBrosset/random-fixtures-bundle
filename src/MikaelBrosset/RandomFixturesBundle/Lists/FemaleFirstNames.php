@@ -6,18 +6,29 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Lists;
 
-class FemaleFirstNames {
-    private $femaleFirstNames = [
-        'Claire', 'Alexandra', 'Rebecca', 'Sophie', 'Michelle', 'Melania', 'Cecilia', 'Emilia', 'Elsa', 'Salomé'
-    ];
+use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
-    public function getRandomFemaleFirstName()
+class FemaleFirstNames {
+
+    public function getRandomFemaleFirstName(): string
     {
-        return $this->femaleFirstNames[rand(0, count($this->femaleFirstNames)-1)];
+        $data = $this->openFile();
+        return $data[rand(0, count($data)-1)];
     }
 
-    private function openFile()
+    private function openFile(): array
     {
-        if
+        $resource = __DIR__ . '/Resources/FemaleFirstNames';
+        if (!is_readable($resource)) {
+            new ListNotFoundException(__CLASS__);
+        }
+
+        $res = @fopen($resource, 'r');
+        $list = [];
+        while ($ligne = fgets($res)) {
+            $list[] = $ligne;
+        }
+
+        return $list;
     }
 }

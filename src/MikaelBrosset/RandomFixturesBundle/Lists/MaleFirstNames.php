@@ -6,19 +6,29 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Lists;
 
+use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
+
 class MaleFirstNames
 {
-    private $maleFirstNames = [
-        'Jon', 'John', 'Dave', 'David', 'Edgar', 'Edmund', 'Albert', 'Samuel', 'Jonathan', 'Clement', 'Marc', 'Carl', 'Emmanuel', 'François', 'Igor'
-    ];
-
-    public function __construct()
+    public function getRandomMaleFirstName(): string
     {
-        return $this;
+        $data = $this->openFile();
+        return $data[rand(0, count($data)-1)];
     }
 
-    public function getRandomMaleFirstName()
+    private function openFile(): array
     {
-        return $this->maleFirstNames[rand(0, count($this->maleFirstNames)-1)];
+        $resource = __DIR__ . '/Resources/MaleFirstNames';
+        if (!is_readable($resource)) {
+            new ListNotFoundException(__CLASS__);
+        }
+
+        $res = @fopen($resource, 'r');
+        $list = [];
+        while ($ligne = fgets($res)) {
+            $list[] = $ligne;
+        }
+
+        return $list;
     }
 }

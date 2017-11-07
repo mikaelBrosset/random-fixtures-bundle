@@ -2,23 +2,23 @@
 /**
  * Author: Mikael Brosset
  * Email: mikael.brosset@gmail.com
- * Date: 06/11/17
+ * Date: 07/11/17
  */
 namespace MikaelBrosset\RandomFixturesBundle\Lists;
 
 use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
-class LastNames
-{
-    public function getRandomLastName(): string
+class FirstNames {
+
+    public function getRandomFirstName(): string
     {
-        $data = $this->openFile();
-        return $data[rand(0, count($data)-1)];
+        $firstNames = array_merge($this->openFile('FemaleFirstNames'), $this->openFile('MaleFirstNames'));
+        return $firstNames[rand(0, count($firstNames)-1)];
     }
 
-    private function openFile(): array
+    private function openFile(string $file): array
     {
-        $resource = __DIR__ . '/Resources/LastNames';
+        $resource = __DIR__ . '/Resources/' . $file;
         if (!is_readable($resource)) {
             new ListNotFoundException(__CLASS__);
         }
