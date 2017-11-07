@@ -2,23 +2,22 @@
 /**
  * Author: Mikael Brosset
  * Email: mikael.brosset@gmail.com
- * Date: 06/11/17
+ * Date: 07/11/17
  */
-namespace MikaelBrosset\RandomFixturesBundle\Lists;
+namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
 use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
-class LastNames
+abstract class Generator
 {
-    public function getRandomLastName(): string
+    protected function selectRandom(array $data): string
     {
-        $data = $this->openFile();
         return $data[rand(0, count($data)-1)];
     }
 
-    private function openFile(): array
+    protected function openFile(string $file): array
     {
-        $resource = __DIR__ . '/Resources/LastNames';
+        $resource = __DIR__ . '/Resources/' . $file;
         if (!is_readable($resource)) {
             new ListNotFoundException(__CLASS__);
         }
