@@ -6,7 +6,7 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
-class EmailGenerator extends Generator
+class EmailGenerator extends Generator implements GeneratorInterface
 {
-
+    function getValue(){}
 }

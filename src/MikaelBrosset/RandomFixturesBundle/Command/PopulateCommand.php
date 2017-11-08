@@ -27,8 +27,10 @@ class PopulateCommand extends ContainerAwareCommand
 
     function setMapping()
     {
-        $this->mapping['firstname'] = new Generators\FirstNameGenerator();
-        $this->mapping['lastname']  = new Generators\LastNameGenerator();
+        $this->mapping['firstname']       = new Generators\FirstNameGenerator();
+        $this->mapping['femalefirstname'] = new Generators\FemaleFirstNameGenerator();
+        $this->mapping['malefirstname']   = new Generators\MaleFirstNameGenerator();
+        $this->mapping['lastname']        = new Generators\LastNameGenerator();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -60,9 +62,8 @@ class PopulateCommand extends ContainerAwareCommand
 
             $user = new User(); /** @var TODO class */
             foreach ($propAnot as $name => $values) {
-
                 $method = 'set'. ucfirst($name);
-                $user->$method($this->mapping[$name]->getValue());
+                $user->$method($this->mapping[$values['type']]->getValue());
             }
 
             $em->persist($user);

@@ -6,7 +6,8 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
-class FirstNameGenerator extends Generator {
+class FirstNameGenerator extends Generator implements GeneratorInterface
+{
 
     public function getValue(): string
     {

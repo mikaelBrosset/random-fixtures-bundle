@@ -8,7 +8,7 @@ namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
 use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
-class LastNameGenerator extends Generator
+class LastNameGenerator extends Generator implements GeneratorInterface
 {
     public function getValue(): string
     {
