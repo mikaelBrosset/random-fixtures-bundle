@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Entity\User;
+use Symfony\Component\Finder\Finder;
 
 class PopulateCommand extends ContainerAwareCommand
 {
@@ -35,18 +36,26 @@ class PopulateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /**
-         * @var EntityManager
-         */
-        $em = $this->getContainer()->get('doctrine')->getManager();
+        $finder = new Finder();
+        $finder->files()
+            ->in($this->getContainer()->get('kernel')->getProjectDir() . '/src/');
+
+        $it = $finder->files()->getIterator();
+        $rit = new \RegexIterator($it, "#Entity\/\w+\/*\.php$#");
+
+        foreach ($rit as $r) {
+            $this->manager($r);
+        }
+    }
+
+    function manager($file)
+    {
         $this->setMapping();
-
-        $userNb = 5;
-
-        $reader = new AnnotationReader();
-
         $classNamespace = 'AppBundle\Entity\User'; /** @var TODO get files */
         $reflectClass = new \ReflectionClass(new $classNamespace());
+        $reader = new AnnotationReader();
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
 
         /*
          * Number of times a class will get fixtures
@@ -63,13 +72,13 @@ class PopulateCommand extends ContainerAwareCommand
             $user = new User(); /** @var TODO class */
             foreach ($propAnot as $name => $values) {
                 $method = 'set'. ucfirst($name);
-                $user->$method($this->mapping[$values['type']]->getValue());
+                $user->$method($this->mapping[$values['type']]->getValue($values['type'], $values['option']));
             }
 
             $em->persist($user);
         }
-
         $em->flush();
+        $em->clear();
     }
 
     function getTimes(AnnotationReader $reader, $reflectClass)
