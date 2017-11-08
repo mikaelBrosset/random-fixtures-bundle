@@ -24,10 +24,10 @@ abstract class Generator
 
         $res = @fopen($resource, 'r');
         $list = [];
-        while ($ligne = fgets($res)) {
+        while ($ligne = fgetss($res)) {
             $list[] = $ligne;
         }
-
+        fclose($res);
         return $list;
     }
 }
