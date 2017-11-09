@@ -36,19 +36,28 @@ class PopulateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $dir = '/src/';
+        $absDir = $this->getContainer()->get('kernel')->getProjectDir() . $dir;
+
         $finder = new Finder();
         $finder->files()
-            ->in($this->getContainer()->get('kernel')->getProjectDir() . '/src/');
+            ->in($absDir);
 
         $it = $finder->files()->getIterator();
+
         $rit = new \RegexIterator($it, "#Entity\/\w+\/*\.php$#");
+        
+        if (is_null(!$rit->valid())) {
+            $output->writeln(sprintf("<error>No php Entity found in %s<error>", $absDir));
+            exit();
+        }
 
         foreach ($rit as $r) {
-            $this->manager($r);
+            $this->manager($r, $output);
         }
     }
 
-    function manager($file)
+    function manager($file, OutputInterface $output)
     {
         $this->setMapping();
         $classNamespace = 'AppBundle\Entity\User'; /** @var TODO get files */
@@ -60,7 +69,9 @@ class PopulateCommand extends ContainerAwareCommand
         /*
          * Number of times a class will get fixtures
          */
-        $times = $this->getTimes($reader, $reflectClass);
+        if (!$times = $this->getTimes($reader, $reflectClass)) {
+            $output->writeln(sprintf("<error>No Class annotation found for %s<error>", $classNamespace));
+        }
 
         /*
          * The annotations from properties
@@ -83,7 +94,9 @@ class PopulateCommand extends ContainerAwareCommand
 
     function getTimes(AnnotationReader $reader, $reflectClass)
     {
-        $classAnnotation = $reader->getClassAnnotation($reflectClass, 'MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass');
+        if (is_null($classAnnotation = $reader->getClassAnnotation($reflectClass, 'MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass'))) {
+            return false;
+        }
         return $classAnnotation->times;
     }
 
