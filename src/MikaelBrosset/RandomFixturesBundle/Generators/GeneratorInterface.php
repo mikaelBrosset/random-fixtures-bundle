@@ -10,6 +10,10 @@ interface GeneratorInterface
 {
     /**
      * Returns a processed random value according to the parameters (ex: some random firstnames)
+     *
+     * @param int $null
+     * @param null $option
+     * @return mixed
      */
-    public function getValue();
+    public function getValue($null = 0, $option = null);
 }

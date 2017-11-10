@@ -9,7 +9,7 @@ namespace MikaelBrosset\RandomFixturesBundle\Generators;
 class FemaleFirstNameGenerator extends Generator implements GeneratorInterface
 {
 
-    public function getValue(): string
+    public function getValue($null = 0, $option = null): string
     {
         $femaleFirstnames = $this->openFile('female-firstnames');
         return $this->selectRandom($femaleFirstnames);

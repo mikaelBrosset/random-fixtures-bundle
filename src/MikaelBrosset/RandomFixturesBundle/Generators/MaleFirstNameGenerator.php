@@ -10,7 +10,7 @@ use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
 class MaleFirstNameGenerator extends Generator implements GeneratorInterface
 {
-    public function getValue(): string
+    public function getValue($null = 0, $option = null): string
     {
         $maleFirstnames = $this->openFile('male-firstnames');
         return $this->selectRandom($maleFirstnames);

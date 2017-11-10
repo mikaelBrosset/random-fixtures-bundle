@@ -8,5 +8,5 @@ namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
 class EmailGenerator extends Generator implements GeneratorInterface
 {
-    function getValue(){}
+    function getValue($null = 0, $option = null){}
 }
