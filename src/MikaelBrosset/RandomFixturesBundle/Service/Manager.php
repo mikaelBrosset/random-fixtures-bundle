@@ -30,10 +30,10 @@ abstract class Manager
      */
     function setNameMapping()
     {
-        $this->mapping['firstname']       = new Generators\FirstNameGenerator();
-        $this->mapping['femalefirstname'] = new Generators\FemaleFirstNameGenerator();
-        $this->mapping['malefirstname']   = new Generators\MaleFirstNameGenerator();
-        $this->mapping['lastname']        = new Generators\LastNameGenerator();
+        $this->mapping['firstname']       = new Generators\FirstnameGenerator();
+        $this->mapping['femalefirstname'] = new Generators\FemaleFirstnameGenerator();
+        $this->mapping['malefirstname']   = new Generators\MaleFirstnameGenerator();
+        $this->mapping['lastname']        = new Generators\LastnameGenerator();
     }
 
     public function manage()
