@@ -19,11 +19,25 @@ class MBRFClass
      */
     public $times;
 
+    public $toto;
+
     /**
      * @return int
      */
     public function getTimes()
     {
         return $this->times;
+    }
+
+    public function getToto()
+    {
+        return $this->toto;
+    }
+
+    public function getMandatoryProperties()
+    {
+        return [
+            "times"
+        ];
     }
 }

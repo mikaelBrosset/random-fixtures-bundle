@@ -10,6 +10,6 @@ class NamespaceNotFoundException extends \Exception
 {
     public function __construct($class)
     {
-        parent::__construct(sprintf("class not found for %s, class namespace MUST use PSR-4 standard", $class));
+        parent::__construct(sprintf("Class not found for %s, class namespace MUST use PSR-4 standard", $class));
     }
 }

@@ -6,61 +6,83 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Service;
 
-use AppBundle\Entity\User;
-use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass;
+use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
 class AnnotationManager extends EntityFinder
 {
+    /**
+     * @var Reader
+     */
     protected $reader;
 
     /**
      * Manage Annotation for One Entity
      */
-    protected function manageAnnotation(SplFileInfo $file, OutputInterface $output)
+    protected function manageAnnotation(SplFileInfo $file)
     {
-        $entity = $this->loadClassFromNamespace($file);
-        $r = new \ReflectionClass(new $entity());
+        $entityObj = $this->loadClassFromNamespace($file);
+        $r = new \ReflectionClass(new $entityObj());
 
         //Number of times a class will be copied in db
-        if (!$times = $this->getTimes($this->reader, $r)) {
-            $output->writeln(sprintf("<error>No Class annotation found for %s<error>", $classNamespace));
-        }
+        $times = $this->getClassAnnotations($r); // TODO here
 
         //The annotations coming from entity properties
-        $propAnot = $this->readAnnotations($this->reader, $r);
+        $propAnot = $this->getPropertiesAnnotations($r);
 
         for ($i = 1; $i<= $times; $i++) {
-
-            $user = new User(); /** @var TODO class */
+            die(var_dump($times));
+            $entity = new $entityObj();
             foreach ($propAnot as $name => $values) {
                 $method = 'set'. ucfirst($name);
-                $user->$method($this->mapping[$values['type']]->getValue($values['type'], $values['option']));
+                $entity->$method($this->mapping[$values['type']]->getValue($values['type'], $values['option']));
             }
 
-            $this->persist($user);
+            $this->persist($entity);
         }
         $this->flush();
     }
 
-    /**
-     * Get the number of times an Entity has to be copied in the database
-     */
-    private function getTimes(AnnotationReader $reader, $reflectClass)
+    private function getClassAnnotations(\ReflectionClass $entityR): array
     {
-        if (is_null($classAnnot = $reader->getClassAnnotation($reflectClass, 'MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass'))) {
-            return false;
+        $MBRFClass = new MBRFClass();
+        $MBRFClassReflect = new \ReflectionClass($MBRFClass);
+
+        // Fills $MBRFClass properties with data from annotations
+        $MBRFClass = $this->reader->getClassAnnotation($entityR, $MBRFClassReflect->getName());
+
+
+        //die(var_dump(in_array('times', $MBRFClass->getMandatoryProperties())));
+        /** TODO VALIDATION QU' il y ait bien name + verif à faire dans l'entité (ex pour FR, EN, etc)*/
+
+        // Gets all properties from MBRFClass model...
+        $MBRFClassReflectProp = $MBRFClassReflect->getProperties();
+
+        // ... and matches them with the entity ones
+        $data = [];
+        for ($i = 0; $i<count($MBRFClassReflectProp); $i++) {
+            $MBRFClassProp[$i] = $MBRFClassReflectProp[$i]->getName();
+            $MBRFClassMethodToCall = 'get' . ucfirst($MBRFClassProp[$i]);
+
+            if (!method_exists($MBRFClass, $MBRFClassMethodToCall)) {
+                throw new MethodNotFoundException($MBRFClassMethodToCall, get_class($MBRFClass));
+            }
+
+            $data[$MBRFClassProp[$i]] = $MBRFClass->$MBRFClassMethodToCall();
         }
-        return $classAnnot->times;
+        //die(var_dump($data));
+        return $data;
     }
 
-    private function readAnnotations(AnnotationReader $reader, $reflectClass): array
+    private function getPropertiesAnnotations(\ReflectionClass $reflectClass): array
     {
         $annot = [];
         foreach ($reflectClass->getProperties() as $prop) {
 
-            if (!is_null($reflProp = $reader->getPropertyAnnotation($prop, 'MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp'))) {
+            if (!is_null($reflProp = $this->reader->getPropertyAnnotation($prop, 'MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp'))) {
                 $annot[$prop->name] = [
                     'type'   => $reflProp->type,
                     'null'   => $reflProp->null,

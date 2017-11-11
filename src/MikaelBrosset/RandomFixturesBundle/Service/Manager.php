@@ -42,7 +42,7 @@ abstract class Manager
         $this->setNameMapping();
 
         foreach ($rit as $r) {
-            $this->manageAnnotation($r, $this->output);
+            $this->manageAnnotation($r);
         }
     }
 

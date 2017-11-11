@@ -12,6 +12,6 @@ class ListNotFoundException extends \Exception
 {
     public function __construct($class)
     {
-        parent::__construct(sprintf("list not found for %s", $class));
+        parent::__construct(sprintf("List not found for %s", $class));
     }
 }
