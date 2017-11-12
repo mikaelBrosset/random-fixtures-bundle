@@ -9,7 +9,7 @@ namespace MikaelBrosset\RandomFixturesBundle\Service;
 use Doctrine\Common\Annotations\Reader;
 use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass;
 use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
-use Symfony\Component\Console\Output\OutputInterface;
+use MikaelBrosset\RandomFixturesBundle\Exception\PropertyNotFoundException;
 use Symfony\Component\Finder\SplFileInfo;
 
 class AnnotationManager extends EntityFinder
@@ -34,7 +34,6 @@ class AnnotationManager extends EntityFinder
         $propAnot = $this->getPropertiesAnnotations($r);
 
         for ($i = 1; $i<= $times; $i++) {
-            die(var_dump($times));
             $entity = new $entityObj();
             foreach ($propAnot as $name => $values) {
                 $method = 'set'. ucfirst($name);
@@ -48,32 +47,37 @@ class AnnotationManager extends EntityFinder
 
     private function getClassAnnotations(\ReflectionClass $entityR): array
     {
-        $MBRFClass = new MBRFClass();
-        $MBRFClassReflect = new \ReflectionClass($MBRFClass);
+        $MBRFClass  = new MBRFClass();
+        $MBRFClassR = new \ReflectionClass($MBRFClass);
 
         // Fills $MBRFClass properties with data from annotations
-        $MBRFClass = $this->reader->getClassAnnotation($entityR, $MBRFClassReflect->getName());
-
+        $MBRFClassFilled = $this->reader->getClassAnnotation($entityR, $MBRFClassR->getName());
 
         //die(var_dump(in_array('times', $MBRFClass->getMandatoryProperties())));
-        /** TODO VALIDATION QU' il y ait bien name + verif à faire dans l'entité (ex pour FR, EN, etc)*/
+        /** verif à faire dans l'entité (ex pour FR, EN, etc) + correctif $data*/
 
         // Gets all properties from MBRFClass model...
-        $MBRFClassReflectProp = $MBRFClassReflect->getProperties();
+        $MBRFClassReflectProp = $MBRFClassR->getProperties();
 
         // ... and matches them with the entity ones
         $data = [];
         for ($i = 0; $i<count($MBRFClassReflectProp); $i++) {
-            $MBRFClassProp[$i] = $MBRFClassReflectProp[$i]->getName();
+            $MBRFClassProp[$i]     = $MBRFClassReflectProp[$i]->getName();
             $MBRFClassMethodToCall = 'get' . ucfirst($MBRFClassProp[$i]);
 
-            if (!method_exists($MBRFClass, $MBRFClassMethodToCall)) {
-                throw new MethodNotFoundException($MBRFClassMethodToCall, get_class($MBRFClass));
+            // Validates the MBRFClass mandatory properties are set
+            if (in_array($MBRFClassProp[$i], $MBRFClass->getMandatoryProperties()) && is_null($MBRFClassFilled->$MBRFClassMethodToCall())) {
+                throw new PropertyNotFoundException($MBRFClassProp[$i], $entityR->getName());
+            }
+
+            //Validates the MBRFClass mandatory method getter for the forenamed property is set
+            if (!method_exists($MBRFClassFilled, $MBRFClassMethodToCall)) {
+                throw new MethodNotFoundException($MBRFClassMethodToCall, get_class($MBRFClassFilled));
             }
 
             $data[$MBRFClassProp[$i]] = $MBRFClass->$MBRFClassMethodToCall();
+            var_dump($MBRFClass->$MBRFClassMethodToCall());
         }
-        //die(var_dump($data));
         return $data;
     }
 
