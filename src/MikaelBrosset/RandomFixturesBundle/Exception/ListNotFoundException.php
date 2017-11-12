@@ -6,8 +6,6 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Exception;
 
-use Exception;
-
 class ListNotFoundException extends \Exception
 {
     public function __construct($class)

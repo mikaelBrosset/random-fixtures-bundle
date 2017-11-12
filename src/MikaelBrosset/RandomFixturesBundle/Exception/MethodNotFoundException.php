@@ -6,12 +6,10 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Exception;
 
-use Exception;
-
 class MethodNotFoundException extends \Exception
 {
     public function __construct($methodName, $className)
     {
-        parent::__construct(sprintf("Mandatory method \"public %s()\" not found in %s", $methodName, $className));
+        parent::__construct(sprintf("Mandatory public method \"%s()\" not found in %s", $methodName, $className));
     }
 }
