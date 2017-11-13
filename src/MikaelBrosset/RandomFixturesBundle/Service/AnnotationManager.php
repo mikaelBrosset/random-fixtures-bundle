@@ -54,7 +54,7 @@ class AnnotationManager extends EntityFinder
         $MBRFClassFilled = $this->reader->getClassAnnotation($entityR, $MBRFClassR->getName());
 
         //die(var_dump(in_array('times', $MBRFClass->getMandatoryProperties())));
-        /** verif à faire dans l'entité (ex pour FR, EN, etc) + correctif $data*/
+        /** verif à faire dans l'entité (ex pour FR, EN, etc)*/
 
         // Gets all properties from MBRFClass model...
         $MBRFClassReflectProp = $MBRFClassR->getProperties();
@@ -75,7 +75,7 @@ class AnnotationManager extends EntityFinder
                 throw new MethodNotFoundException($MBRFClassMethodToCall, get_class($MBRFClassFilled));
             }
 
-            $data[$MBRFClassProp[$i]] = $MBRFClass->$MBRFClassMethodToCall();
+            $data[$MBRFClassProp[$i]] = $MBRFClassFilled->$MBRFClassMethodToCall();
             var_dump($MBRFClass->$MBRFClassMethodToCall());
         }
         return $data;
