@@ -1,0 +1,22 @@
+MBRFClass:
+    times :
+        mandatory : true
+
+MBRFProp:
+    type :
+        mandatory : true
+        generators :
+            firstname :
+                mapping : "Generators\\FirstnameGenerator"
+                group: "person"
+            lastname :
+                mapping : "Generators\\LastnameGenerator"
+                group: "person"
+            maleFisrtname :
+                mapping : "Generators\\MaleFirstnameGenerator"
+                group: "person"
+            femaleFirstname :
+                mapping : "Generators\\FemaleFirstnameGenerator"
+                group: "person"
+    nullable :
+    options :
