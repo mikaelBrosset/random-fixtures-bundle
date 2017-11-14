@@ -6,10 +6,10 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Exception;
 
-class PropertyNotFoundException extends \Exception
+class MissingMandatoryParameterException extends \Exception
 {
     public function __construct($propertyName, $className)
     {
-        parent::__construct(sprintf("Mandatory public property \"%s\" not found in %s", $propertyName, $className));
+        parent::__construct(sprintf("Mandatory annotation property \"%s\" not found in %s", $propertyName, $className));
     }
 }

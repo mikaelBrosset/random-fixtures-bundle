@@ -34,10 +34,15 @@ class MBRFClass
         return $this->toto;
     }
 
-    public function getMandatoryProperties()
+    public function getMandatoryProperties(): array
     {
         return [
             "times"
         ];
+    }
+
+    public function linkedMandatoryProperties(): array
+    {
+        return [];
     }
 }

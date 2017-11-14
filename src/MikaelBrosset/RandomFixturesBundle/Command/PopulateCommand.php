@@ -25,6 +25,8 @@ class PopulateCommand extends ContainerAwareCommand
         $projectDir = $this->getContainer()->get('kernel')->getProjectDir(); // To be configured as service
         $em = $this->getContainer()->get('doctrine')->getManager(); // To be configured as service
 
-        (new AnnotationManager($output, $projectDir, $em))->manage();
+        $results = (new AnnotationManager($output, $projectDir, $em))->manage();
+
+        $output->writeln("<info>All Done<info>");
     }
 }
