@@ -52,4 +52,11 @@ class MBRFProp
     {
         return $this->option;
     }
+
+    public function getMandatoryProperties(): array
+    {
+        return [
+            "type"
+        ];
+    }
 }
