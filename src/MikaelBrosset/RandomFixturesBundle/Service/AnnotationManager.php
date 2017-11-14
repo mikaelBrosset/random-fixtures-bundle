@@ -10,11 +10,9 @@ use Doctrine\Common\Annotations\Reader;
 use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass;
 use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
 use MikaelBrosset\RandomFixturesBundle\Exception\{
-    MethodNotFoundException,
-    MissingMandatoryParameterException,
-    MissingMandatoryPropertyParameterException,
-    PropertyNotFoundException
+    MethodNotFoundException, MissingMandatoryParameterException, MissingMandatoryPropertyParameterException, PropertyNotFoundException
 };
+use MikaelBrosset\RandomFixturesBundle\Generators;
 
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -34,22 +32,21 @@ class AnnotationManager extends EntityFinder
         $entityClassName = $this->loadClassFromNamespace($file);
         $entity = new $entityClassName();
 
-        /** verif à faire dans l'entité (ex pour FR, EN, etc)*/
+        /** verif à faire dans l'entité (ex pour FR, EN, etc) //// et matcher le yml avec l'entité  Checks ths properties have an actual getter */
         //Number of times a class will be copied in db
         $classAnnot = $this->getClassAnnotations($entity, new MBRFClass());
 
         //The annotations coming from entity properties
         $propAnot = $this->getPropertyAnnotations($entity, new MBRFProp());
 
-        /**
-         * TODO MAPPING YML
-         */
-
         for ($i = 1; $i<= $classAnnot['times']; $i++) {
             $entity = new $entityClassName();
             foreach ($propAnot as $name => $MBRFProp) {
                 $method = 'set'. ucfirst($name);
-                $entity->$method($this->mapping[$MBRFProp->getType()]->getValue($MBRFProp));
+
+                // Generator is called according to the config mapping
+                $generatorToCall = 'MikaelBrosset\RandomFixturesBundle\\' .  $this->ymlConfig['MBRFProp']['type']['generators'][$MBRFProp->getType()]['mapping'];
+                $entity->$method((new $generatorToCall())->getValue($MBRFProp));
             }
             $this->persist($entity);
         }
@@ -76,14 +73,10 @@ class AnnotationManager extends EntityFinder
             $MBRFClassProp[$i]     = $MBRFClassReflectProp[$i]->getName();
             $MBRFClassMethodToCall = 'get' . ucfirst($MBRFClassProp[$i]);
 
-            // Validates the setting of MBRFClass mandatory properties
-            if (in_array($MBRFClassProp[$i], $MBRFClass->getMandatoryProperties()) && is_null($MBRFClassFilled->$MBRFClassMethodToCall())) {
-                throw new MissingMandatoryParameterException($MBRFClassProp[$i], $entityR->getName());
-            }
+            $mp = $this->getMandatoryProperties('MBRFClass');
 
-            // Validates the setting for the MBRFClass mandatory getter method matched by the forenamed property
-            if (!method_exists($MBRFClassFilled, $MBRFClassMethodToCall)) {
-                throw new MethodNotFoundException($MBRFClassMethodToCall, get_class($MBRFClassFilled));
+            if (in_array($MBRFClassProp[$i], $mp) && is_null($MBRFClassFilled->$MBRFClassMethodToCall())) {
+                throw new MissingMandatoryParameterException($MBRFClassProp[$i], $entityR->getName());
             }
             $data[$MBRFClassProp[$i]] = $MBRFClassFilled->$MBRFClassMethodToCall();
         }
@@ -107,27 +100,53 @@ class AnnotationManager extends EntityFinder
             // Checks the entity property has a @MBRF annotation
             if (is_null($MBRFPropFilled)) { continue; }
 
-            // Checks ths properties have an actual getter
-            for ($j=0; $j<count($MBRFPropRProps); $j++) {
-
-                $getter = 'get' . ucfirst($MBRFPropRProps[$j]->getName());
-                if (!method_exists($MBRFPropFilled, $getter)) {
-                    throw new MethodNotFoundException($getter, get_class($MBRFPropFilled));
-                }
-            }
-
-            // Checks mandatory properties are set
-            $mandatoryProps = $MBRFProp->getMandatoryProperties();
-            for($m=0; $m<count($mandatoryProps); $m++) {
-                $getter = 'get' . ucfirst($mandatoryProps[$m]);
+            // Checks mandatory properties are not null
+            $mp = $this->getMandatoryProperties('MBRFProp');
+            for($m=0; $m<count($mp); $m++) {
+                $getter = 'get' . ucfirst($mp[$m]);
 
                 if (is_null($MBRFPropFilled->$getter())) {
-                    throw new MissingMandatoryPropertyParameterException($mandatoryProps[$m], get_class($entity), $entityRProps[$i]->getName());
+                    throw new MissingMandatoryPropertyParameterException($mp[$m], get_class($entity), $entityRProps[$i]->getName());
                 }
             }
-
             $data[$entityRProps[$i]->getName()] = $MBRFPropFilled;
         }
         return $data;
+    }
+
+    function getMandatoryProperties(string $class) : array
+    {
+        return array_keys(array_filter($this->ymlConfig[$class], function ($prop) {
+            return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
+        }));
+    }
+
+    function validatePropertiesAndSetters() : void
+    {
+        $MBRFClass = new MBRFClass();
+        $MBRFProp  = new MBRFProp();
+
+        $ymlMBRFClass = array_keys($this->ymlConfig['MBRFClass']);
+        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRFProp']);
+
+        foreach ($ymlMBRFClass as $prop) {
+            if (!property_exists($MBRFClass, $prop)) {
+                throw new PropertyNotFoundException($prop, get_class($MBRFClass));
+            }
+            $getter = 'get' . ucfirst($prop);
+            if (!method_exists($MBRFClass, $getter)) {
+                throw new MethodNotFoundException($getter, get_class($MBRFClass));
+            }
+        }
+
+        foreach ($ymlMBRFProp as $prop) {
+            if (!property_exists($MBRFProp, $prop)) {
+                throw new PropertyNotFoundException($prop, get_class($MBRFProp));
+            }
+            $getter = 'get' . ucfirst(strtolower($prop));
+            if (!method_exists($MBRFProp, $getter)) {
+                throw new MethodNotFoundException($getter, get_class($MBRFProp));
+            }
+        }
     }
 }

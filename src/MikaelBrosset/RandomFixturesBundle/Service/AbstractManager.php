@@ -10,10 +10,10 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Output\OutputInterface;
 use MikaelBrosset\RandomFixturesBundle\Generators;
+use Symfony\Component\Yaml\Yaml;
 
-abstract class Manager
+abstract class AbstractManager
 {
-    protected $mapping = [];
     protected $output;
     protected $em;
 
@@ -25,22 +25,12 @@ abstract class Manager
         $this->reader = new AnnotationReader();
     }
 
-    /**
-     * Maps the annotation name with their Generator
-     */
-    function setNameMapping()
-    {
-        $this->mapping['firstname']       = new Generators\FirstnameGenerator();
-        $this->mapping['femalefirstname'] = new Generators\FemaleFirstnameGenerator();
-        $this->mapping['malefirstname']   = new Generators\MaleFirstnameGenerator();
-        $this->mapping['lastname']        = new Generators\LastnameGenerator();
-    }
-
     public function manage()
     {
         $rit = $this->findFiles($this->absDir);
-        $this->setNameMapping();
-
+        $this->parseYmlConfig();
+        $this->validatePropertiesAndSetters();
+        // Cyclee through every entity file
         foreach ($rit as $r) {
             $this->manageAnnotation($r);
         }

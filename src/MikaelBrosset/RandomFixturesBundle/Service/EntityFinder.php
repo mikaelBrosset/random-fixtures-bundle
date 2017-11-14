@@ -9,13 +9,16 @@ namespace MikaelBrosset\RandomFixturesBundle\Service;
 use MikaelBrosset\RandomFixturesBundle\Exception\NamespaceNotFoundException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Yaml\Yaml;
 
-class EntityFinder extends Manager
+class EntityFinder extends AbstractManager
 {
+    protected $ymlConfig;
+
     /**
      * Find php Files in Entity folder and subfolders
      */
-    protected function findFiles()
+    protected function findFiles() : \RegexIterator
     {
         $f = new Finder();
         $f->files()
@@ -32,6 +35,14 @@ class EntityFinder extends Manager
     }
 
     /**
+     * Maps the annotation name with their Generator
+     */
+    function parseYmlConfig()
+    {
+        $this->ymlConfig = Yaml::parse(file_get_contents($this->absDir . 'MikaelBrosset/RandomFixturesBundle/Config/config.yml'));
+    }
+
+    /**
      * Turns a pathname into a namespace according to PSR-4
      */
     protected function loadClassFromNamespace(SplFileInfo $file)
@@ -42,4 +53,5 @@ class EntityFinder extends Manager
         }
         return $c;
     }
+
 }

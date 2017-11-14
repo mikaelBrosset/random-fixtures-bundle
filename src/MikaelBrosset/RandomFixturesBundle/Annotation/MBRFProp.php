@@ -22,12 +22,12 @@ class MBRFProp
     /**
      * @var int
      */
-    public $null = 0;
+    public $nullable = 0;
 
     /**
      * @var string
      */
-    public $option;
+    public $options;
 
     /**
      * @return string
@@ -40,23 +40,16 @@ class MBRFProp
     /**
      * @return int
      */
-    public function getNull()
+    public function getNullable()
     {
-        return $this->null;
+        return $this->nullable;
     }
 
     /**
      * @return string
      */
-    public function getOption()
+    public function getOptions()
     {
-        return $this->option;
-    }
-
-    public function getMandatoryProperties(): array
-    {
-        return [
-            "type"
-        ];
+        return $this->options;
     }
 }
