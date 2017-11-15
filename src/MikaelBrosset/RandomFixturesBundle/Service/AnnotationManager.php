@@ -7,21 +7,18 @@
 namespace MikaelBrosset\RandomFixturesBundle\Service;
 
 use Doctrine\Common\Annotations\Reader;
-use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFClass;
-use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
-use MikaelBrosset\RandomFixturesBundle\Exception\{
-    MethodNotFoundException, MissingMandatoryParameterException, MissingMandatoryPropertyParameterException, PropertyNotFoundException
-};
-use MikaelBrosset\RandomFixturesBundle\Generators;
-
+use MikaelBrosset\RandomFixturesBundle\Exception\MissingMandatoryParameterException;
+use MikaelBrosset\RandomFixturesBundle\Exception\MissingMandatoryPropertyParameterException;
 use Symfony\Component\Finder\SplFileInfo;
 
-class AnnotationManager extends EntityFinder
+class AnnotationManager extends FileManager
 {
     /**
      * @var Reader
      */
     protected $reader;
+    protected $entity;
+    protected $entityR;
 
     /**
      * Manage Annotation for One Entity
@@ -30,14 +27,15 @@ class AnnotationManager extends EntityFinder
     {
         //Loads an entity from filename (ex: AppBundle\User)
         $entityClassName = $this->loadClassFromNamespace($file);
-        $entity = new $entityClassName();
+        $this->entity  = new $entityClassName();
+        $this->entityR = new \ReflectionClass(new $this->entity());
 
         /** verif à faire dans l'entité (ex pour FR, EN, etc) //// et matcher le yml avec l'entité  Checks ths properties have an actual getter */
         //Number of times a class will be copied in db
-        $classAnnot = $this->getClassAnnotations($entity, new MBRFClass());
+        $classAnnot = $this->getClassAnnotations();
 
         //The annotations coming from entity properties
-        $propAnot = $this->getPropertyAnnotations($entity, new MBRFProp());
+        $propAnot = $this->getPropertyAnnotations();
 
         for ($i = 1; $i<= $classAnnot['times']; $i++) {
             $entity = new $entityClassName();
@@ -56,27 +54,24 @@ class AnnotationManager extends EntityFinder
     /**
      * Gets annotation values from an entity and checks for mandatory properties (ex: times)
      */
-    private function getClassAnnotations($entity, MBRFClass $MBRFClass): array
+    private function getClassAnnotations(): array
     {
-        $entityR    = new \ReflectionClass(new $entity());
-        $MBRFClassR = new \ReflectionClass($MBRFClass);
-
         // Fills $MBRFClass properties with data from annotations
-        $MBRFClassFilled = $this->reader->getClassAnnotation($entityR, $MBRFClassR->getName());
+        $MBRFClassFilled = $this->reader->getClassAnnotation($this->entityR, $this->MBRFClassR->getName());
 
         // Gets all properties from MBRFClass model...
-        $MBRFClassReflectProp = $MBRFClassR->getProperties();
+        $MBRFClassRProp = $this->MBRFClassR->getProperties();
 
         // ... and matches them with the entity ones
         $data = [];
-        for ($i = 0; $i<count($MBRFClassReflectProp); $i++) {
-            $MBRFClassProp[$i]     = $MBRFClassReflectProp[$i]->getName();
+        for ($i = 0; $i<count($MBRFClassRProp); $i++) {
+            $MBRFClassProp[$i]     = $MBRFClassRProp[$i]->getName();
             $MBRFClassMethodToCall = 'get' . ucfirst($MBRFClassProp[$i]);
 
             $mp = $this->getMandatoryProperties('MBRFClass');
 
             if (in_array($MBRFClassProp[$i], $mp) && is_null($MBRFClassFilled->$MBRFClassMethodToCall())) {
-                throw new MissingMandatoryParameterException($MBRFClassProp[$i], $entityR->getName());
+                throw new MissingMandatoryParameterException($MBRFClassProp[$i], $this->entityR->getName());
             }
             $data[$MBRFClassProp[$i]] = $MBRFClassFilled->$MBRFClassMethodToCall();
         }
@@ -86,16 +81,15 @@ class AnnotationManager extends EntityFinder
     /**
      * Gets annotation values from an entity properties and checks for mandatory properties (ex: type)
      */
-    private function getPropertyAnnotations($entity, MBRFProp $MBRFProp): array
+    private function getPropertyAnnotations(): array
     {
         $data = [];
-        $entityRProps   = (new \ReflectionClass($entity))->getProperties();
-        $MBRFPropRProps = (new \ReflectionClass($MBRFProp))->getProperties();
+        $entityRProps   = (new \ReflectionClass($this->entity))->getProperties();
 
         for ($i=0; $i<count($entityRProps); $i++) {
 
             // Fills MBRFProp with its values coming from annotation
-            $MBRFPropFilled = $this->reader->getPropertyAnnotation($entityRProps[$i], $MBRFProp);
+            $MBRFPropFilled = $this->reader->getPropertyAnnotation($entityRProps[$i], $this->MBRFProp);
 
             // Checks the entity property has a @MBRF annotation
             if (is_null($MBRFPropFilled)) { continue; }
@@ -106,47 +100,11 @@ class AnnotationManager extends EntityFinder
                 $getter = 'get' . ucfirst($mp[$m]);
 
                 if (is_null($MBRFPropFilled->$getter())) {
-                    throw new MissingMandatoryPropertyParameterException($mp[$m], get_class($entity), $entityRProps[$i]->getName());
+                    throw new MissingMandatoryPropertyParameterException($mp[$m], get_class($this->entity), $entityRProps[$i]->getName());
                 }
             }
             $data[$entityRProps[$i]->getName()] = $MBRFPropFilled;
         }
         return $data;
-    }
-
-    function getMandatoryProperties(string $class) : array
-    {
-        return array_keys(array_filter($this->ymlConfig[$class], function ($prop) {
-            return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
-        }));
-    }
-
-    function validatePropertiesAndSetters() : void
-    {
-        $MBRFClass = new MBRFClass();
-        $MBRFProp  = new MBRFProp();
-
-        $ymlMBRFClass = array_keys($this->ymlConfig['MBRFClass']);
-        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRFProp']);
-
-        foreach ($ymlMBRFClass as $prop) {
-            if (!property_exists($MBRFClass, $prop)) {
-                throw new PropertyNotFoundException($prop, get_class($MBRFClass));
-            }
-            $getter = 'get' . ucfirst($prop);
-            if (!method_exists($MBRFClass, $getter)) {
-                throw new MethodNotFoundException($getter, get_class($MBRFClass));
-            }
-        }
-
-        foreach ($ymlMBRFProp as $prop) {
-            if (!property_exists($MBRFProp, $prop)) {
-                throw new PropertyNotFoundException($prop, get_class($MBRFProp));
-            }
-            $getter = 'get' . ucfirst(strtolower($prop));
-            if (!method_exists($MBRFProp, $getter)) {
-                throw new MethodNotFoundException($getter, get_class($MBRFProp));
-            }
-        }
     }
 }
