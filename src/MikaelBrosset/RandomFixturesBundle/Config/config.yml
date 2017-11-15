@@ -1,8 +1,8 @@
-MBRFClass:
+MBRFClass :
     times :
         mandatory : true
 
-MBRFProp:
+MBRFProp :
     type :
         mandatory : true
         generators :
@@ -12,11 +12,29 @@ MBRFProp:
             lastname :
                 mapping : "Generators\\LastnameGenerator"
                 group: "person"
-            maleFisrtname :
+            maleFirstname :
                 mapping : "Generators\\MaleFirstnameGenerator"
                 group: "person"
             femaleFirstname :
                 mapping : "Generators\\FemaleFirstnameGenerator"
                 group: "person"
+            gender :
+                mapping : "Generators\\GenderGenerator"
+                group : "person"
+            genderAbbrev:
+                mapping : "Generators\\GenderAbbrevGenerator"
+                group : "person"
+            email :
+                mapping : "Generators\\EmailGenerator"
+                group: "person"
+            companyEmail :
+                mapping : "Generators\\CompanyEmailGenerator"
+                group : "company"
+            text :
+                mapping : "Generators\\TextGenerator"
+                group: "text"
     nullable :
     options :
+
+MBRFOptions :
+    regex :
