@@ -6,11 +6,14 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
-use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
 
 class LastnameGenerator extends Generator implements GeneratorInterface
 {
-    public function getValue($null = 0, $option = null): string
+    /**
+     * @inheritdoc
+     */
+    public function getValue(MBRFProp $MBRFPropFilled): string
     {
         $lastnames = $this->openFile('lastnames');
         return $this->selectRandom($lastnames);

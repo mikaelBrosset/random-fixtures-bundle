@@ -6,11 +6,14 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
-use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
 
 class MaleFirstnameGenerator extends Generator implements GeneratorInterface
 {
-    public function getValue($null = 0, $option = null): string
+    /**
+     * @inheritdoc
+     */
+    public function getValue(MBRFProp $MBRFPropFilled): string
     {
         $maleFirstnames = $this->openFile('male-firstnames');
         return $this->selectRandom($maleFirstnames);

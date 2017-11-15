@@ -10,7 +10,7 @@ use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 
 abstract class Generator
 {
-    protected function selectRandom(array $data): string
+    protected function selectRandom(array $data)
     {
         return $data[rand(0, count($data)-1)];
     }
@@ -29,5 +29,19 @@ abstract class Generator
         }
         fclose($res);
         return $list;
+    }
+
+    /**
+     * Recursive function that makes sure the same key is not called more than onco
+     */
+    protected function getRandomKeyFromArray($data, &$nulledKeys) : void
+    {
+        $randomNb = rand(0, count($data)-1);
+        if (array_key_exists($randomNb, $nulledKeys)) {
+            $this->getRandomKeyFromArray($data, $nulledKeys);
+
+        } else {
+            $nulledKeys[$randomNb] = null;
+        }
     }
 }

@@ -6,7 +6,13 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
+
 class EmailGenerator extends Generator implements GeneratorInterface
 {
-    function getValue($null = 0, $option = null){}
+    /**
+     * @inheritdoc
+     */
+    public function getValue(MBRFProp $MBRFPropFilled): string
+    {}
 }
