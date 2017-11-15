@@ -6,12 +6,14 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Service;
 
+use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\NamespaceNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\PropertyNotFoundException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-class EntityFinder extends AbstractManager
+class FileManager extends AbstractManager
 {
     protected $ymlConfig;
 
@@ -54,4 +56,36 @@ class EntityFinder extends AbstractManager
         return $c;
     }
 
+    function validatePropertiesAndSetters() : void
+    {
+        $ymlMBRFClass = array_keys($this->ymlConfig['MBRFClass']);
+        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRFProp']);
+
+        foreach ($ymlMBRFClass as $prop) {
+            if (!property_exists($this->MBRFClass, $prop)) {
+                throw new PropertyNotFoundException($prop, get_class($this->MBRFClass));
+            }
+            $getter = 'get' . ucfirst($prop);
+            if (!method_exists($this->MBRFClass, $getter)) {
+                throw new MethodNotFoundException($getter, get_class($this->MBRFClass));
+            }
+        }
+
+        foreach ($ymlMBRFProp as $prop) {
+            if (!property_exists($this->MBRFProp, $prop)) {
+                throw new PropertyNotFoundException($prop, get_class($this->MBRFProp));
+            }
+            $getter = 'get' . ucfirst(strtolower($prop));
+            if (!method_exists($this->MBRFProp, $getter)) {
+                throw new MethodNotFoundException($getter, get_class($this->MBRFProp));
+            }
+        }
+    }
+
+    function getMandatoryProperties(string $class) : array
+    {
+        return array_keys(array_filter($this->ymlConfig[$class], function ($prop) {
+            return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
+        }));
+    }
 }
