@@ -15,22 +15,6 @@ abstract class Generator
         return $data[rand(0, count($data)-1)];
     }
 
-    protected function openFile(string $file): array
-    {
-        $resource = __DIR__ . '/Resources/' . $file;
-        if (!is_readable($resource)) {
-            new ListNotFoundException(__CLASS__);
-        }
-
-        $res = @fopen($resource, 'r');
-        $list = [];
-        while ($ligne = fgetss($res)) {
-            $list[] = $ligne;
-        }
-        fclose($res);
-        return $list;
-    }
-
     /**
      * Recursive function that makes sure the same key is not called more than onco
      */

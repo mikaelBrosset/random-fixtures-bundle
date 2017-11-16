@@ -6,9 +6,8 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Command;
 
-use MikaelBrosset\RandomFixturesBundle\Service\AnnotationManager;
+use MikaelBrosset\RandomFixturesBundle\Service\EntityAnnotationManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,7 +30,7 @@ class PopulateCommand extends ContainerAwareCommand
         $projectDir = $this->getContainer()->get('kernel')->getProjectDir(); // To be configured as service
         $em = $this->getContainer()->get('doctrine')->getManager(); // To be configured as service
 
-        $results = (new AnnotationManager($output, $projectDir, $em))->manage();
+        $results = (new EntityAnnotationManager($output, $projectDir, $em))->manage();
 
         $output->writeln("<info>All Done<info>");
     }

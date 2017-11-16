@@ -17,6 +17,7 @@ abstract class AbstractManager
     protected $output;
     protected $em;
     protected $MBRFClasses;
+    protected $MBRFClassesReflect;
     protected $mandatoryProps;
 
     public function __construct(OutputInterface $output, $projectDir, EntityManager $em, $dir = '/src/')
@@ -50,8 +51,10 @@ abstract class AbstractManager
             'MBRFProp'  => $MBRFProp
         ];
 
-        $this->MBRFClassR = new \ReflectionClass($MBRFClass);
-        $this->MBRFPropR  = new \ReflectionClass($MBRFProp);
+        $this->MBRFClassesReflect = [
+            'MBRFClassR' => new \ReflectionClass($MBRFClass),
+            'MBRFPropR'  => new \ReflectionClass($MBRFProp)
+        ];
 
         $this->validateMBRFPropertiesAndSetters();
     }
