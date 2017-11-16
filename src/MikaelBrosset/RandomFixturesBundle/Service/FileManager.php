@@ -7,6 +7,7 @@
 namespace MikaelBrosset\RandomFixturesBundle\Service;
 
 use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\MissingMandatoryPropertyParameterException;
 use MikaelBrosset\RandomFixturesBundle\Exception\NamespaceNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\PropertyNotFoundException;
 use Symfony\Component\Finder\Finder;
@@ -20,28 +21,20 @@ class FileManager extends AbstractManager
     /**
      * Find php Files in Entity folder and subfolders
      */
-    protected function findFiles() : \RegexIterator
+    protected function findEntities() : \RegexIterator
     {
         $f = new Finder();
         $f->files()
             ->in($this->absDir);
 
         $it = $f->files()->getIterator();
-        $rit = new \RegexIterator($it, "#Entity\/\w+\/*\.php$#");
+        $entIt = new \RegexIterator($it, "#Entity\/\w+\/*\.php$#");
 
-        if (is_null(!$rit->valid())) {
+        if (is_null(!$entIt->valid())) {
             $this->output->writeln(sprintf("<error>No php Entity found in %s<error>", $this->absDir));
             exit();
         }
-        return $rit;
-    }
-
-    /**
-     * Maps the annotation name with their Generator
-     */
-    function parseYmlConfig()
-    {
-        $this->ymlConfig = Yaml::parse(file_get_contents($this->absDir . 'MikaelBrosset/RandomFixturesBundle/Config/config.yml'));
+        return $entIt;
     }
 
     /**
@@ -56,36 +49,55 @@ class FileManager extends AbstractManager
         return $c;
     }
 
-    function validatePropertiesAndSetters() : void
+    /////////////////////YML CONFIG ////////////////////////
+
+    /**
+     * Maps the annotation name with their Generator
+     */
+    function parseYmlConfig()
     {
-        $ymlMBRFClass = array_keys($this->ymlConfig['MBRFClass']);
-        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRFProp']);
+        $this->ymlConfig = Yaml::parse(file_get_contents($this->absDir . 'MikaelBrosset/RandomFixturesBundle/Config/config.yml'));
+    }
 
-        foreach ($ymlMBRFClass as $prop) {
-            if (!property_exists($this->MBRFClass, $prop)) {
-                throw new PropertyNotFoundException($prop, get_class($this->MBRFClass));
-            }
-            $getter = 'get' . ucfirst($prop);
-            if (!method_exists($this->MBRFClass, $getter)) {
-                throw new MethodNotFoundException($getter, get_class($this->MBRFClass));
-            }
+    function getMandatoryProperties(array $classes) : array
+    {
+        $mandatProps = [];
+        foreach ($classes as $key => $item) {
+            $mandatProps[$key] = array_keys(array_filter($this->ymlConfig[$key], function ($prop) {
+                return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
+            }));
         }
+        return $mandatProps;
+    }
 
-        foreach ($ymlMBRFProp as $prop) {
-            if (!property_exists($this->MBRFProp, $prop)) {
-                throw new PropertyNotFoundException($prop, get_class($this->MBRFProp));
-            }
-            $getter = 'get' . ucfirst(strtolower($prop));
-            if (!method_exists($this->MBRFProp, $getter)) {
-                throw new MethodNotFoundException($getter, get_class($this->MBRFProp));
+    function validateMandatoryProperties($mandatoryProps, $annotProps)
+    {
+        foreach ($mandatoryProps as $mProp) {
+            if (!in_array($mProp, $annotProps)) {
+                throw new MissingMandatoryPropertyParameterException();
             }
         }
     }
 
-    function getMandatoryProperties(string $class) : array
+    ///TODO retourner uniquement les resources dont on a besoin
+    function getNeededResourcesFromConfig(array $needed) : array
     {
-        return array_keys(array_filter($this->ymlConfig[$class], function ($prop) {
-            return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
-        }));
+        //for test only
+        $needed = ['femaleFirstname', 'maleFirstname', 'lastname'];
+
+        $config = $this->ymlConfig['MBRFProp']['type']['generators'];
+        $resourcesKeys = array_filter($config, function ($data) {
+            return (array_key_exists('resource', $data)) ? true : false;
+        });
+        $finalresourcesKeys = array_filter($resourcesKeys, function ($data) use ($needed) {
+            return in_array($data, $needed) ? true : false;
+        });
+
+        die(var_dump($finalresourcesKeys));
+    }
+
+    function loadResources($resourcesToLoad)
+    {
+
     }
 }

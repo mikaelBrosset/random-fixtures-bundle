@@ -8,21 +8,28 @@ MBRFProp :
         generators :
             firstname :
                 mapping : "Generators\\FirstnameGenerator"
-                group: "person"
+                group : "person"
             lastname :
                 mapping : "Generators\\LastnameGenerator"
-                group: "person"
+                group : "person"
+                resource : "lastnames"
             maleFirstname :
                 mapping : "Generators\\MaleFirstnameGenerator"
-                group: "person"
+                group : "person"
+                resource : "male-firstnames"
             femaleFirstname :
                 mapping : "Generators\\FemaleFirstnameGenerator"
                 group: "person"
+                resource : "female-firstnames"
             gender :
                 mapping : "Generators\\GenderGenerator"
                 group : "person"
-            genderAbbrev:
+                resource : "gender"
+            genderAbbrev :
                 mapping : "Generators\\GenderAbbrevGenerator"
+                group : "person"
+            slug :
+                mapping : "Generators\\SlugGenerator"
                 group : "person"
             email :
                 mapping : "Generators\\EmailGenerator"

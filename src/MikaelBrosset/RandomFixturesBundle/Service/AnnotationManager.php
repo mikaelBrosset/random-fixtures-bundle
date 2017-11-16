@@ -7,6 +7,8 @@
 namespace MikaelBrosset\RandomFixturesBundle\Service;
 
 use Doctrine\Common\Annotations\Reader;
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFProp;
+use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\MissingMandatoryParameterException;
 use MikaelBrosset\RandomFixturesBundle\Exception\MissingMandatoryPropertyParameterException;
 use Symfony\Component\Finder\SplFileInfo;
@@ -28,18 +30,25 @@ class AnnotationManager extends FileManager
         //Loads an entity from filename (ex: AppBundle\User)
         $entityClassName = $this->loadClassFromNamespace($file);
         $this->entity  = new $entityClassName();
-        $this->entityR = new \ReflectionClass(new $this->entity());
+        //$entityR = new \ReflectionClass($entity());
 
         /** verif à faire dans l'entité (ex pour FR, EN, etc) //// et matcher le yml avec l'entité  Checks ths properties have an actual getter */
-        //Number of times a class will be copied in db
-        $classAnnot = $this->getClassAnnotations();
+        //The annotations coming from class properties (ex: Number of times a class will be copied in db)
+        //$classAnnot = $this->getEntityClassAnnotations($entity);
 
         //The annotations coming from entity properties
-        $propAnot = $this->getPropertyAnnotations();
+        $propAnnot  = $this->getEntityPropertiesAnnotations();
+die(var_dump($propAnnot));
+die();
+
+
+
+
+
 
         for ($i = 1; $i<= $classAnnot['times']; $i++) {
             $entity = new $entityClassName();
-            foreach ($propAnot as $name => $MBRFProp) {
+            foreach ($propAnnot as $name => $MBRFProp) {
                 $method = 'set'. ucfirst($name);
 
                 // Generator is called according to the config mapping
@@ -62,8 +71,10 @@ class AnnotationManager extends FileManager
         // Gets all properties from MBRFClass model...
         $MBRFClassRProp = $this->MBRFClassR->getProperties();
 
-        // ... and matches them with the entity ones
         $data = [];
+        $resources = [];
+
+        // ... and matches them with the entity ones
         for ($i = 0; $i<count($MBRFClassRProp); $i++) {
             $MBRFClassProp[$i]     = $MBRFClassRProp[$i]->getName();
             $MBRFClassMethodToCall = 'get' . ucfirst($MBRFClassProp[$i]);
@@ -78,33 +89,57 @@ class AnnotationManager extends FileManager
         return $data;
     }
 
-    /**
-     * Gets annotation values from an entity properties and checks for mandatory properties (ex: type)
-     */
-    private function getPropertyAnnotations(): array
+    private function getEntityPropertiesAnnotations()
     {
         $data = [];
         $entityRProps   = (new \ReflectionClass($this->entity))->getProperties();
-
         for ($i=0; $i<count($entityRProps); $i++) {
 
-            // Fills MBRFProp with its values coming from annotation
-            $MBRFPropFilled = $this->reader->getPropertyAnnotation($entityRProps[$i], $this->MBRFProp);
+            // If @MBRF annotation is mission on property, loop continues without it
+            if (!$MBRFPropFilled = $this->getEntityPropertyAnnotations($entityRProps[$i])) { continue; };
 
-            // Checks the entity property has a @MBRF annotation
-            if (is_null($MBRFPropFilled)) { continue; }
-
-            // Checks mandatory properties are not null
-            $mp = $this->getMandatoryProperties('MBRFProp');
-            for($m=0; $m<count($mp); $m++) {
-                $getter = 'get' . ucfirst($mp[$m]);
-
-                if (is_null($MBRFPropFilled->$getter())) {
-                    throw new MissingMandatoryPropertyParameterException($mp[$m], get_class($this->entity), $entityRProps[$i]->getName());
-                }
-            }
+            $this->checksMandatoryPropertiesNotNull($MBRFPropFilled, $entityRProps[$i]->getName());
             $data[$entityRProps[$i]->getName()] = $MBRFPropFilled;
         }
         return $data;
+    }
+
+    /**
+     * Gets annotation values from an entity properties and checks for mandatory properties (ex: type)
+     */
+    private function getEntityPropertyAnnotations($entityProperty)
+    {
+        // Fills MBRFProp with its values coming from annotation
+        $MBRFPropFilled = $this->reader->getPropertyAnnotation($entityProperty, $this->MBRFClasses['MBRFProp']);
+
+        // Checks the entity property has a @MBRF annotation
+        if (is_null($MBRFPropFilled)) { return false; }
+
+        return $MBRFPropFilled;
+    }
+
+    function checksMandatoryPropertiesNotNull(MBRFProp $MBRFPropFilled, string $propertyName): void
+    {
+        $mp = $this->mandatoryProps['MBRFProp'];
+
+        for($i=0; $i<count($MBRFprops = $this->MBRFPropR->getProperties()); $i++) {
+            $getter = 'get' . ucfirst($MBRFprops[$i]->getName());
+
+            if (is_null($MBRFPropFilled->$getter()) && in_array($MBRFprops[$i]->getName(), $mp)) {
+                throw new MissingMandatoryPropertyParameterException($MBRFprops[$i]->getName(), get_class($this->entity), $propertyName);
+            }
+        }
+    }
+
+    public function eagerLoadResources($file)
+    {
+        $resources = [];
+        return $resources;
+    }
+
+    public function eagerLoadGenerators($namespace)
+    {
+        $generators = [];
+        return $generators;
     }
 }

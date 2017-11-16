@@ -10,6 +10,6 @@ class MissingMandatoryPropertyParameterException extends \Exception
 {
     public function __construct($annotationPropertyName, $className, $property)
     {
-        parent::__construct(sprintf("Mandatory annotation property \"%s\" not found in %s::%s", $annotationPropertyName, $className, $property));
+        parent::__construct(sprintf("Mandatory @MBRF annotation property \"%s\" not found in %s::%s", $annotationPropertyName, $className, $property));
     }
 }
