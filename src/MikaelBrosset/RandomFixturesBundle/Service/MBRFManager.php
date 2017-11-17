@@ -43,7 +43,7 @@ class MBRFManager
             ->getMandatoryProperties();
 
         // Cycle through every entity file
-        $entitiesIterator = (new FileManager($this->absDir))->findEntities($this->absDir, $this->output);
+        $entitiesIterator = (FileManager::findEntities($this->absDir, $this->output));
         foreach ($entitiesIterator as $e) {
             (new EntityAnnotationManager($e, $ymlConfig, $this->em, $mandatoryProps, $this->MBRFClasses, $this->MBRFClassesReflect))->manage();
         }
