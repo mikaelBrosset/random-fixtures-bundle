@@ -1,47 +1,48 @@
-MBRFClass :
-    times :
-        mandatory : true
+MBRF :
+    MBRFClass :
+        times :
+            mandatory : true
 
-MBRFProp :
-    type :
-        mandatory : true
-        generators :
-            firstname :
-                mapping : "Generators\\FirstnameGenerator"
-                group : "person"
-            lastname :
-                mapping : "Generators\\LastnameGenerator"
-                group : "person"
-                resource : "lastnames"
-            maleFirstname :
-                mapping : "Generators\\MaleFirstnameGenerator"
-                group : "person"
-                resource : "male-firstnames"
-            femaleFirstname :
-                mapping : "Generators\\FemaleFirstnameGenerator"
-                group: "person"
-                resource : "female-firstnames"
-            gender :
-                mapping : "Generators\\GenderGenerator"
-                group : "person"
-                resource : "gender"
-            genderAbbrev :
-                mapping : "Generators\\GenderAbbrevGenerator"
-                group : "person"
-            slug :
-                mapping : "Generators\\SlugGenerator"
-                group : "person"
-            email :
-                mapping : "Generators\\EmailGenerator"
-                group: "person"
-            companyEmail :
-                mapping : "Generators\\CompanyEmailGenerator"
-                group : "company"
-            text :
-                mapping : "Generators\\TextGenerator"
-                group: "text"
-    nullable :
-    options :
+    MBRFProp :
+        type :
+            mandatory : true
+            generators :
+                firstname :
+                    mapping : "Generators\\FirstnameGenerator"
+                    group : "person"
+                lastname :
+                    mapping : "Generators\\LastnameGenerator"
+                    group : "person"
+                    resource : "lastnames"
+                maleFirstname :
+                    mapping : "Generators\\MaleFirstnameGenerator"
+                    group : "person"
+                    resource : "male-firstnames"
+                femaleFirstname :
+                    mapping : "Generators\\FemaleFirstnameGenerator"
+                    group: "person"
+                    resource : "female-firstnames"
+                gender :
+                    mapping : "Generators\\GenderGenerator"
+                    group : "person"
+                    resource : "gender"
+                genderAbbrev :
+                    mapping : "Generators\\GenderAbbrevGenerator"
+                    group : "person"
+                slug :
+                    mapping : "Generators\\SlugGenerator"
+                    group : "person"
+                email :
+                    mapping : "Generators\\EmailGenerator"
+                    group: "person"
+                companyEmail :
+                    mapping : "Generators\\CompanyEmailGenerator"
+                    group : "company"
+                text :
+                    mapping : "Generators\\TextGenerator"
+                    group: "text"
+        nullable :
+        options :
 
-MBRFOptions :
-    regex :
+    MBRFOptions :
+        regex :

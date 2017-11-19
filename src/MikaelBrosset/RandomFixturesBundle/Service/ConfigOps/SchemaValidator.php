@@ -23,8 +23,8 @@ class SchemaValidator
 
     function validateMBRFPropertiesAndSetters() : SchemaValidator
     {
-        $ymlMBRFClass = array_keys($this->ymlConfig['MBRFClass']);
-        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRFProp']);
+        $ymlMBRFClass = array_keys($this->ymlConfig['MBRF']['MBRFClass']);
+        $ymlMBRFProp  = array_keys($this->ymlConfig['MBRF']['MBRFProp']);
 
         foreach ($ymlMBRFClass as $prop) {
             if (!property_exists($this->MBRFClasses['MBRFClass'], $prop)) {
@@ -63,7 +63,7 @@ class SchemaValidator
         $yml = $this->ymlConfig;
         die(var_dump($this->absDir));
 
-        foreach ($this->ymlConfig['MBRFProp']['generators'] as $name => $g) {
+        foreach ($this->ymlConfig['MBRF']['MBRFProp']['generators'] as $name => $g) {
             if (isset($g['resource']) && !file_exists($resourcesDir . '/' . $g['resource'])) {
                 throw new ResourceNotFoundException($g['resource'], $resourceDir);
             }

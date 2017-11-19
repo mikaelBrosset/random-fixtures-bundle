@@ -39,7 +39,7 @@ class MBRFManager
         $SchemaValidator = new SchemaValidator($ymlConfig, $this->MBRFClasses, $this->absDir);
         $mandatoryProps = $SchemaValidator
             ->validateMBRFPropertiesAndSetters()
-            //->validatesGeneratorFiles()
+            ->validatesGeneratorFiles()
             ->getMandatoryProperties();
 
         // Cycle through every entity file

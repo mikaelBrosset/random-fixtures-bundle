@@ -52,7 +52,8 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
         //The annotations coming from entity properties
         $propAnnot  = $this->getEntityPropertiesAnnotations();
 
-        //$resources = []; TODO
+        //load resources = []; TODO
+        //load generators
         $this->callGeneratorAndSave($classAnnot, $propAnnot);
     }
 
