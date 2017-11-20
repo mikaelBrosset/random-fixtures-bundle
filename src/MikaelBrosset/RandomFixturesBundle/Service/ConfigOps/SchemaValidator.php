@@ -51,7 +51,7 @@ class SchemaValidator
     {
         $mandatProps = [];
         foreach ($this->MBRFClasses as $key => $item) {
-            $mandatProps[$key] = array_keys(array_filter($this->ymlConfig[$key], function ($prop) {
+            $mandatProps[$key] = array_keys(array_filter($this->ymlConfig['MBRF'][$key], function ($prop) {
                 return (isset($prop['mandatory']) && $prop['mandatory'] === true)? true : false;
             }));
         }

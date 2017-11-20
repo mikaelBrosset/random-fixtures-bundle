@@ -63,9 +63,4 @@ class FileManager
 
         die(var_dump($finalresourcesKeys));
     }
-
-    function loadResources($resourcesToLoad)
-    {
-
-    }
 }
