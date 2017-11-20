@@ -13,7 +13,7 @@ class FemaleFirstnameGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function getValue(MBRFProp $MBRFPropFilled)
+    public function calculateValue(MBRFProp $MBRFPropFilled)
     {
         $nullable = $MBRFPropFilled->getNullable();
         $femaleFirstnames = $this->openFile('female-firstnames');
@@ -28,6 +28,6 @@ class FemaleFirstnameGenerator extends Generator implements GeneratorInterface
         foreach ($nulledKeys as $key => $value) {
             $femaleFirstnames[$key] = null;
         }
-        return $this->selectRandom($femaleFirstnames);
+        $this->setValue($this->selectRandom($femaleFirstnames));
     }
 }

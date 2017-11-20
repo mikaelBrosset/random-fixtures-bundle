@@ -13,5 +13,5 @@ interface GeneratorInterface
     /**
      * Returns a processed random value according to the parameters (ex: some random firstnames)
      */
-    public function getValue(MBRFProp $MBRFPropFilled);
+    public function calculateValue(MBRFProp $MBRFPropFilled);
 }

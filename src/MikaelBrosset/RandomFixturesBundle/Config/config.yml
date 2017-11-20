@@ -8,39 +8,35 @@ MBRF :
             mandatory : true
             generators :
                 firstname :
-                    mapping : "Generators\\FirstnameGenerator"
-                    group : "person"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\FirstnameGenerator"
+                    requires : "gender, maleFirstname, femaleLastname"
                 lastname :
-                    mapping : "Generators\\LastnameGenerator"
-                    group : "person"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\LastnameGenerator"
                     resource : "lastnames"
                 maleFirstname :
-                    mapping : "Generators\\MaleFirstnameGenerator"
-                    group : "person"
-                    resource : "male-firstnames"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\MaleFirstnameGenerator"
+                    resource : "male-firstname"
                 femaleFirstname :
-                    mapping : "Generators\\FemaleFirstnameGenerator"
-                    group: "person"
-                    resource : "female-firstnames"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\FemaleFirstnameGenerator"
+                    resource : "female-firstname"
                 gender :
-                    mapping : "Generators\\GenderGenerator"
-                    group : "person"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\GenderGenerator"
                     resource : "gender"
                 genderAbbrev :
-                    mapping : "Generators\\GenderAbbrevGenerator"
-                    group : "person"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\GenderAbbrevGenerator"
+                    requires : "gender"
                 slug :
-                    mapping : "Generators\\SlugGenerator"
-                    group : "person"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\SlugGenerator"
+                    requires : "firstname, lastname"
                 email :
-                    mapping : "Generators\\EmailGenerator"
-                    group: "person"
-                companyEmail :
-                    mapping : "Generators\\CompanyEmailGenerator"
-                    group : "company"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\EmailGenerator"
+                    requires: "firstname, lastname, companyName"
                 text :
-                    mapping : "Generators\\TextGenerator"
-                    group: "text"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\TextGenerator"
+                shortText :
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\ShortTextGenerator"
+                companyName :
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\CompanyName"
         nullable :
         options :
 

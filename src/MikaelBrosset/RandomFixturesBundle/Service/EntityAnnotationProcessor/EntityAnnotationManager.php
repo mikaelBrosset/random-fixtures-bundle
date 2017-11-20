@@ -8,6 +8,8 @@ namespace MikaelBrosset\RandomFixturesBundle\Service\EntityAnnotationProcessor;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
+use MikaelBrosset\RandomFixturesBundle\Generators\Generator;
+use MikaelBrosset\RandomFixturesBundle\Generators\Group;
 use MikaelBrosset\RandomFixturesBundle\Service\EntityManagerAdapter;
 use MikaelBrosset\RandomFixturesBundle\Service\FileManager;
 use Symfony\Component\Finder\SplFileInfo;
@@ -22,11 +24,12 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
     protected $mandatoryProps;
     protected $reader;
     protected $ymlConfig;
-    protected $em;
+    protected $ema;
     protected $MBRFClasses;
     protected $MBRFClassesReflect;
+    private   $loadedGenerators = [];
 
-    public function __construct(SplFileInfo $file, array $ymlConfig, $em, $mandatoryProps, $MBRFClasses, $MBRFClassesReflect)
+    public function __construct(SplFileInfo $file, array $ymlConfig, $ema, $mandatoryProps, $MBRFClasses, $MBRFClassesReflect)
     {
         //Loads an entity from filename (ex: AppBundle\User)
         $this->entityClassName = FileManager::loadClassFromNamespace($file);
@@ -34,7 +37,7 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
         $this->reader = new AnnotationReader();
         $this->mandatoryProps = $mandatoryProps;
         $this->ymlConfig = $ymlConfig;
-        $this->em = $em;
+        $this->ema = $ema;
 
         $this->MBRFClasses  = $MBRFClasses;
         $this->MBRFClassesReflect = $MBRFClassesReflect;
@@ -45,45 +48,56 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
      */
     public function manage()
     {
-        /** TODO verif à faire dans l'entité (ex pour FR, EN, etc)*/
         //The annotations coming from class properties (ex: Number of times a class will be copied in db)
         $classAnnot = $this->getEntityClassAnnotations();
 
         //The annotations coming from entity properties
         $propAnnot  = $this->getEntityPropertiesAnnotations();
 
-        //load resources = []; TODO
-        //load generators
         $this->callGeneratorAndSave($classAnnot, $propAnnot);
     }
 
     public function callGeneratorAndSave($classAnnot, $propAnnot)
     {
-        $ema = new EntityManagerAdapter($this->em);
+        $ymlGenerators = $this->ymlConfig['MBRF']['MBRFProp']['type']['generators'];
 
         for ($i = 1; $i<= $classAnnot['times']; $i++) {
             $entity = new $this->entityClassName();
             foreach ($propAnnot as $name => $MBRFProp) {
-                $method = 'set'. ucfirst($name);
 
-                // Generator is called according to the config mapping
-                $generatorToCall = 'MikaelBrosset\RandomFixturesBundle\\' .  $this->ymlConfig['MBRFProp']['type']['generators'][$MBRFProp->getType()]['mapping'];
-                $entity->$method((new $generatorToCall())->getValue($MBRFProp));
+                // Generator is called according to the config mapping and stored for further use by the entity
+                $generatorName  = $MBRFProp->getType();
+                $generator = $this->checkForInstanceAndCallGenerator($ymlGenerators, $generatorName);
+
+                $entityMethod = 'set'. ucfirst($name);
+                $entity->$entityMethod($generator->calculateValue($MBRFProp));
+
+
+
+
+
+
+
             }
-            $ema->persist($entity);
+            //$this->ema->persist($entity);
         }
-        $ema->flush();
+        //$this->ema->flush();
+        die();
     }
 
-    public function eagerLoadResources($file)
+    private function checkForInstanceAndCallGenerator(array $ymlGenerators, string $generatorName) :  Generator
     {
-        $resources = [];
-        return $resources;
-    }
+        $ymlGenerator   = $ymlGenerators[$generatorName];
+        $generatorClass = $ymlGenerator['mapping'];
 
-    public function eagerLoadGenerators($namespace)
-    {
-        $generators = [];
-        return $generators;
+        $loadedGenerators[$generatorName] =
+            $this->loadedGenerators[$generatorName] ??
+            $generator = (new $generatorClass())
+                ->setName($generatorName)
+                ->setResourcePath($ymlGenerator['mapping'])
+                ->setResourceName($ymlGenerator['resource']);
+
+        return $generator;
+
     }
 }
