@@ -18,14 +18,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MBRFManager
 {
     protected $output;
-    protected $em;
+    protected $ema;
     protected $MBRFClasses;
     protected $MBRFClassesReflect;
 
     public function __construct(OutputInterface $output, $projectDir, EntityManager $em, $dir = '/src/')
     {
         $this->output = $output;
-        $this->em = $em;
+        $ema = new EntityManagerAdapter($em);
         $this->absDir = $projectDir . $dir;
         $this->reader = new AnnotationReader();
     }
@@ -39,13 +39,14 @@ class MBRFManager
         $SchemaValidator = new SchemaValidator($ymlConfig, $this->MBRFClasses, $this->absDir);
         $mandatoryProps = $SchemaValidator
             ->validateMBRFPropertiesAndSetters()
-            ->validatesGeneratorFiles()
+            //->validatesGeneratorFiles()
             ->getMandatoryProperties();
 
         // Cycle through every entity file
         $entitiesIterator = (FileManager::findEntities($this->absDir, $this->output));
+
         foreach ($entitiesIterator as $e) {
-            (new EntityAnnotationManager($e, $ymlConfig, $this->em, $mandatoryProps, $this->MBRFClasses, $this->MBRFClassesReflect))->manage();
+            (new EntityAnnotationManager($e, $ymlConfig, $this->ema, $mandatoryProps, $this->MBRFClasses, $this->MBRFClassesReflect))->manage();
         }
     }
 
