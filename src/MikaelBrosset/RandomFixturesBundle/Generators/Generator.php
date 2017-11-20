@@ -2,30 +2,55 @@
 /**
  * Author: Mikael Brosset
  * Email: mikael.brosset@gmail.com
- * Date: 07/11/17
+ * Date: 20/11/17
  */
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
-use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\ResourceNotFoundException;
 
-abstract class Generator
+class Generator
 {
-    protected function selectRandom(array $data)
+    private $name = 'std';
+    private $resourcePath;
+    private $resource;
+    private $leader = 0;
+
+    public function setName($name) : Generator
     {
-        return $data[rand(0, count($data)-1)];
+        $this->name = $name;
+        return $this;
     }
 
-    /**
-     * Recursive function that makes sure the same key is not called more than onco
-     */
-    protected function getRandomKeyFromArray($data, &$nulledKeys) : void
+    public function getName() : string
     {
-        $randomNb = rand(0, count($data)-1);
-        if (array_key_exists($randomNb, $nulledKeys)) {
-            $this->getRandomKeyFromArray($data, $nulledKeys);
+        return $this->name;
+    }
 
-        } else {
-            $nulledKeys[$randomNb] = null;
-        }
+    public function setResourcePath($path) : Generator
+    {
+        $this->name = $path;
+        return $this;
+    }
+
+    public function getResourcePath() : array
+    {
+        return $this->resourcePath;
+    }
+
+    public function getResource($resource) : Generator
+    {
+        if (!is_resource($resource)) { throw new ResourceNotFoundException($this->name, $this->resourcePath); }
+        $this->resource = $resource;
+        return $this;
+    }
+
+    public function setLeader($status) :  Generator
+    {
+        $this->leader = $status;
+    }
+
+    public function isLeader() : bool
+    {
+        return $this->leader;
     }
 }
