@@ -16,7 +16,7 @@ class FemaleFirstnameGenerator extends Generator implements GeneratorInterface
     public function calculateValue(MBRFProp $MBRFPropFilled)
     {
         $nullable = $MBRFPropFilled->getNullable();
-        $femaleFirstnames = $this->openFile('female-firstnames');
+        $femaleFirstnames = $this->openFile($this->getResourceName());
 
         $actualNullables = (int) round(count($femaleFirstnames) / 100 * $nullable);
 
