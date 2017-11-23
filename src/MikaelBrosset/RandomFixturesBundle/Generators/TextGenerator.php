@@ -14,5 +14,7 @@ class TextGenerator extends Generator implements GeneratorInterface
      * @inheritdoc
      */
     public function calculateValue(MBRFProp $MBRFPropFilled)
-    {}
+    {
+
+    }
 }

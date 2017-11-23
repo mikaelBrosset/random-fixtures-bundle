@@ -68,12 +68,9 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
                 // Generator is called according to the config mapping and stored for further use by the entity
                 $generatorName  = $MBRFProp->getType();
                 $generator = $this->checkForInstanceAndCallGenerator($ymlGenerators, $generatorName);
-
                 $entityMethod = 'set'. ucfirst($name);
+
                 $entity->$entityMethod($generator->calculateValue($MBRFProp));
-
-
-
 
 
 
@@ -89,13 +86,17 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
     {
         $ymlGenerator   = $ymlGenerators[$generatorName];
         $generatorClass = $ymlGenerator['mapping'];
+        $resourceName   = isset($ymlGenerators[$generatorName]['resource']) ? $ymlGenerators[$generatorName]['resource'] : [];
+
+        var_dump($resourceName);
 
         $loadedGenerators[$generatorName] =
             $this->loadedGenerators[$generatorName] ??
             $generator = (new $generatorClass())
                 ->setName($generatorName)
                 ->setResourcePath($ymlGenerator['mapping'])
-                ->setResourceName($ymlGenerator['resource']);
+                ->setResourceName($ymlGenerator['resource'])
+                ->setResourceList($resourceName);
 
         return $generator;
 

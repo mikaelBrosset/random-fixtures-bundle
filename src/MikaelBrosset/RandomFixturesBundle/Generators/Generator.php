@@ -13,16 +13,10 @@ class Generator
 {
     private $name = 'std';
     private $resourcePath;
-    private $resource;
     private $resourceName;
-    private $leader = 0;
     private $value;
     private $requirements;
-
-    public function __construct()
-    {
-
-    }
+    protected $resourceList;
 
     public function setName($name) : Generator
     {
@@ -57,26 +51,20 @@ class Generator
         return $this->resourceName;
     }
 
-    public function setResource($resource) : Generator
+    public function setResourceList($file) : Generator
     {
-        if (!is_resource($resource)) { throw new ResourceNotFoundException($this->name, $this->resourcePath); }
-        $this->resource = $resource;
+        $resource = __DIR__ . '/Resources/' . $file;
+
+        $res = fopen($resource, 'r');
+        $list = [];
+
+        while ($ligne = fgetss($res)) {
+            $list[] = $ligne;
+        }
+        fclose($res);
+        $this->resourceList = $list;
+
         return $this;
-    }
-
-    public function getResource()
-    {
-        return $this->resource;
-    }
-
-    public function setLeader($status) :  Generator
-    {
-        $this->leader = $status;
-    }
-
-    public function isLeader() : bool
-    {
-        return $this->leader;
     }
 
     public function setRequirement($generator) :  Generator
@@ -112,21 +100,5 @@ class Generator
         } else {
             $nulledKeys[$randomNb] = null;
         }
-    }
-
-    protected function openFile(string $file): array
-    {
-        $resource = __DIR__ . '/Resources/' . $file;
-        if (!is_readable($resource)) {
-            new ListNotFoundException(get_class($this));
-        }
-        $res = fopen($resource, 'r');
-        $list = [];
-
-        while ($ligne = fgetss($res)) {
-            $list[] = $ligne;
-        }
-        fclose($res);
-        return $list;
     }
 }

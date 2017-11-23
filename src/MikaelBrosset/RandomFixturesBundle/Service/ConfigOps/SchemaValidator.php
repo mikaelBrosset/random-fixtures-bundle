@@ -68,19 +68,20 @@ class SchemaValidator
     {
         foreach ($this->ymlConfig['MBRF']['MBRFProp']['type']['generators'] as $name => $g) {
 
-            if (isset($g['resource']) && !file_exists($this->resourcesDir . $g['resource'])) {
-                throw new ResourceNotFoundException($g['resource'], $this->resourcesDir);
-            }
+            if (isset($g['resource'])) {
+                $resourceFile = $this->resourcesDir . $g['resource'];
 
+                if (!file_exists($resourceFile) && !is_readable($resourceFile)){
+                    throw new ResourceNotFoundException($g['resource'], $this->resourcesDir);
+                }
+            }
             if (!isset($g['mapping'])) {
                 throw new MappingNotFoundException($name);
             }
-
             // checks if mapping class is instanciable, else throw Symfony ClassNotFoundException
-            new $g['mapping'];
-
+            //new $g['mapping'];
         }
-        die();
+
         return $this;
     }
 

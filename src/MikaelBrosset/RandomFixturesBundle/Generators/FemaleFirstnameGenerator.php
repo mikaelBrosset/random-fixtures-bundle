@@ -16,18 +16,17 @@ class FemaleFirstnameGenerator extends Generator implements GeneratorInterface
     public function calculateValue(MBRFProp $MBRFPropFilled)
     {
         $nullable = $MBRFPropFilled->getNullable();
-        $femaleFirstnames = $this->openFile($this->getResourceName());
 
-        $actualNullables = (int) round(count($femaleFirstnames) / 100 * $nullable);
-
+        $actualNullables = (int) round(count($this->resourceList) / 100 * $nullable);
         $nulledKeys = [];
+
         for ($i=0; $i<$actualNullables; $i++) {
-            $this->getRandomKeyFromArray($femaleFirstnames, $nulledKeys);
+            $this->getRandomKeyFromArray($this->resourceList, $nulledKeys);
         }
 
         foreach ($nulledKeys as $key => $value) {
-            $femaleFirstnames[$key] = null;
+            $this->resourceList[$key] = null;
         }
-        $this->setValue($this->selectRandom($femaleFirstnames));
+        $this->setValue($this->selectRandom($this->resourceList));
     }
 }
