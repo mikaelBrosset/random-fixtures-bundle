@@ -118,10 +118,11 @@ class Generator
     {
         $resource = __DIR__ . '/Resources/' . $file;
         if (!is_readable($resource)) {
-            new ListNotFoundException(__CLASS__);
+            new ListNotFoundException(get_class($this));
         }
-        $res = @fopen($resource, 'r');
+        $res = fopen($resource, 'r');
         $list = [];
+
         while ($ligne = fgetss($res)) {
             $list[] = $ligne;
         }
