@@ -12,7 +12,7 @@ MBRF :
                     requires : "gender, maleFirstname, femaleLastname"
                 lastname :
                     mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\LastnameGenerator"
-                    resource : "lastnames"
+                    resource : "lastname"
                 maleFirstname :
                     mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\MaleFirstnameGenerator"
                     resource : "male-firstname"
@@ -36,7 +36,7 @@ MBRF :
                 shortText :
                     mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\ShortTextGenerator"
                 companyName :
-                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\CompanyName"
+                    mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\CompanyNameGenerator"
         nullable :
         options :
 
