@@ -13,6 +13,6 @@ class EmailGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function getValue(MBRFProp $MBRFPropFilled): string
+    public function calculateValue(MBRFProp $MBRFPropFilled)
     {}
 }
