@@ -28,6 +28,7 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
     protected $MBRFClasses;
     protected $MBRFClassesReflect;
     private   $loadedGenerators = [];
+    private   $loadedResources = [];
 
     public function __construct(SplFileInfo $file, array $ymlConfig, $ema, $mandatoryProps, $MBRFClasses, $MBRFClassesReflect)
     {
@@ -67,38 +68,49 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
 
                 // Generator is called according to the config mapping and stored for further use by the entity
                 $generatorName  = $MBRFProp->getType();
-                $generator = $this->checkForInstanceAndCallGenerator($ymlGenerators, $generatorName);
+                $generator = $this->loadResourceAndGenerator($ymlGenerators, $generatorName);
                 $entityMethod = 'set'. ucfirst($name);
 
                 $entity->$entityMethod($generator->calculateValue($MBRFProp));
-
-
-
-
             }
-            //$this->ema->persist($entity);
+            $this->ema->persist($entity);
         }
-        //$this->ema->flush();
-        die();
+        $this->ema->flush();
     }
 
-    private function checkForInstanceAndCallGenerator(array $ymlGenerators, string $generatorName) :  Generator
+    private function loadResourceAndGenerator(array $ymlGenerators, string $generatorName) :  Generator
     {
         $ymlGenerator   = $ymlGenerators[$generatorName];
         $generatorClass = $ymlGenerator['mapping'];
         $resourceName   = isset($ymlGenerators[$generatorName]['resource']) ? $ymlGenerators[$generatorName]['resource'] : [];
 
-        var_dump($resourceName);
-
-        $loadedGenerators[$generatorName] =
-            $this->loadedGenerators[$generatorName] ??
-            $generator = (new $generatorClass())
-                ->setName($generatorName)
-                ->setResourcePath($ymlGenerator['mapping'])
-                ->setResourceName($ymlGenerator['resource'])
-                ->setResourceList($resourceName);
+        $generator = $this->eagerLoadGenerator($generatorName, $generatorClass, $ymlGenerator);
+        $this->eagerLoadResource($generatorName, $generator, $resourceName);
 
         return $generator;
+    }
 
+    private function eagerLoadGenerator($generatorName, $generatorClass, $ymlGenerator)
+    {
+        if (!isset($this->loadedGenerators[$generatorName])) {
+            $this->loadedGenerators[$generatorName] =
+                $this->loadedGenerators[$generatorName] ??
+                $generator = (new $generatorClass())
+                    ->setName($generatorName)
+                    ->setResourcePath($ymlGenerator['mapping'])
+                    ->setResourceName($ymlGenerator['resource']);
+        } else {
+            $generator = $this->loadedGenerators[$generatorName];
+        }
+        return $generator;
+    }
+
+    private function eagerLoadResource($generatorName, $generator, $resourceName)
+    {
+        if (!isset($this->loadedResources[$generatorName])) {
+            $this->loadedResources[$generatorName] = $generator->openAndSetResourceList($resourceName);
+        } else {
+            $generator->setResourceList($this->loadedResources[$generatorName]);
+        }
     }
 }
