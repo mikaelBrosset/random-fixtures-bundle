@@ -6,19 +6,25 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Service\ConfigOps;
 
+use MikaelBrosset\RandomFixturesBundle\Exception\MappingNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\PropertyNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\ResourceNotFoundException;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Debug\Exception\ClassNotFoundException;
 
 class SchemaValidator
 {
     private $ymlConfig;
     private $MBRFClasses;
+    private $resourcesDir;
 
     public function __construct($ymlConfig, $MBRFClasses, $absDir)
     {
-        $this->ymlConfig   = $ymlConfig;
-        $this->MBRFClasses = $MBRFClasses;
-        $this->absDir      = $absDir;
+        $this->ymlConfig    = $ymlConfig;
+        $this->MBRFClasses  = $MBRFClasses;
+        $this->absDir       = $absDir;
+        $this->resourcesDir = $absDir . '/MikaelBrosset/RandomFixturesBundle/Generators/Resources/';
     }
 
     function validateMBRFPropertiesAndSetters() : SchemaValidator
@@ -60,21 +66,27 @@ class SchemaValidator
 
     public function validatesGeneratorFiles() : SchemaValidator
     {
-        $yml = $this->ymlConfig;
-        die(var_dump($this->absDir));
+        foreach ($this->ymlConfig['MBRF']['MBRFProp']['type']['generators'] as $name => $g) {
 
-        foreach ($this->ymlConfig['MBRF']['MBRFProp']['generators'] as $name => $g) {
-            if (isset($g['resource']) && !file_exists($resourcesDir . '/' . $g['resource'])) {
-                throw new ResourceNotFoundException($g['resource'], $resourceDir);
+            if (isset($g['resource']) && !file_exists($this->resourcesDir . $g['resource'])) {
+                throw new ResourceNotFoundException($g['resource'], $this->resourcesDir);
             }
 
             if (!isset($g['mapping'])) {
                 throw new MappingNotFoundException($name);
             }
 
-            //TODO mapping class to instanciate
-            //TODO group class to instanciate
+            // checks if mapping class is instanciable, else throw Symfony ClassNotFoundException
+            new $g['mapping'];
+
         }
+        die();
         return $this;
+    }
+
+    function handleError($niveau, $message, $fichier, $ligne, $context)
+    {
+        echo "EEERRRROOOORR";
+        exit(255);
     }
 }

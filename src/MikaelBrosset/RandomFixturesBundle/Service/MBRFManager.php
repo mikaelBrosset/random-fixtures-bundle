@@ -21,11 +21,12 @@ class MBRFManager
     protected $ema;
     protected $MBRFClasses;
     protected $MBRFClassesReflect;
+    protected $absDir;
 
     public function __construct(OutputInterface $output, $projectDir, EntityManager $em, $dir = '/src/')
     {
         $this->output = $output;
-        $ema = new EntityManagerAdapter($em);
+        $this->ema = new EntityManagerAdapter($em);
         $this->absDir = $projectDir . $dir;
         $this->reader = new AnnotationReader();
     }
@@ -39,7 +40,7 @@ class MBRFManager
         $SchemaValidator = new SchemaValidator($ymlConfig, $this->MBRFClasses, $this->absDir);
         $mandatoryProps = $SchemaValidator
             ->validateMBRFPropertiesAndSetters()
-            //->validatesGeneratorFiles()
+            ->validatesGeneratorFiles()
             ->getMandatoryProperties();
 
         // Cycle through every entity file
