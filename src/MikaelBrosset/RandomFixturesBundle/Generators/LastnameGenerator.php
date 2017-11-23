@@ -15,7 +15,6 @@ class LastnameGenerator extends Generator implements GeneratorInterface
      */
     public function calculateValue(MBRFProp $MBRFPropFilled)
     {
-        $lastnames = $this->openFile('lastnames');
         return $this->selectRandom($lastnames);
     }
 }

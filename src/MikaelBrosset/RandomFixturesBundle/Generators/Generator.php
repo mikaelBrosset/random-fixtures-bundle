@@ -51,7 +51,7 @@ class Generator
         return $this->resourceName;
     }
 
-    public function setResourceList($file) : Generator
+    public function openAndSetResourceList($file) : array
     {
         $resource = __DIR__ . '/Resources/' . $file;
 
@@ -64,7 +64,12 @@ class Generator
         fclose($res);
         $this->resourceList = $list;
 
-        return $this;
+        return $list;
+    }
+
+    public function setResourceList($list)
+    {
+        $this->resourceList = $list;
     }
 
     public function setRequirement($generator) :  Generator
@@ -99,6 +104,20 @@ class Generator
 
         } else {
             $nulledKeys[$randomNb] = null;
+        }
+    }
+
+    public function setSomeListElementsAsNull($nullable)
+    {
+        $actualNullables = (int) round(count($this->resourceList) / 100 * $nullable);
+        $nulledKeys = [];
+
+        for ($i=0; $i<$actualNullables; $i++) {
+            $this->getRandomKeyFromArray($this->resourceList, $nulledKeys);
+        }
+
+        foreach ($nulledKeys as $key => $value) {
+            $this->resourceList[$key] = null;
         }
     }
 }
