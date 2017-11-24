@@ -11,22 +11,17 @@ use MikaelBrosset\RandomFixturesBundle\Exception\ResourceNotFoundException;
 
 class Generator
 {
-    private $name = 'std';
-    private $resourcePath;
-    private $resourceName = null;
-    private $value;
-    private $requirements;
+    protected $name = 'std';
+    protected $resourcePath;
+    protected $resourceName = null;
     protected $resourceList;
+    protected $availableOptions = null;
+    private   $value;
 
     public function setName($name) : Generator
     {
         $this->name = $name;
         return $this;
-    }
-
-    public function getName() : string
-    {
-        return $this->name;
     }
 
     public function setResourcePath($path) : Generator
@@ -35,20 +30,10 @@ class Generator
         return $this;
     }
 
-    public function getResourcePath() : string
-    {
-        return $this->resourcePath;
-    }
-
     public function setResourceName($name) : Generator
     {
         $this->resourceName = $name;
         return $this;
-    }
-
-    public function getResourceName() : string
-    {
-        return $this->resourceName;
     }
 
     public function openAndSetResourceList($file) : array
@@ -70,11 +55,6 @@ class Generator
     public function setResourceList($list)
     {
         $this->resourceList = $list;
-    }
-
-    public function setRequirement($generator) :  Generator
-    {
-        $this->requirements[] = $generator;
     }
 
     public function setValue($value)
