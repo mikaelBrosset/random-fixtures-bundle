@@ -33,6 +33,12 @@ MBRF :
                     requires: "firstname, lastname, companyName"
                 text :
                     mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\TextGenerator"
+                    resource : "text"
+                    options :
+                      - "fixedLength"
+                      - "randLength"
+                      - "upper"
+                      - "lower"
                 shortText :
                     mapping : "MikaelBrosset\\RandomFixturesBundle\\Generators\\ShortTextGenerator"
                 companyName :

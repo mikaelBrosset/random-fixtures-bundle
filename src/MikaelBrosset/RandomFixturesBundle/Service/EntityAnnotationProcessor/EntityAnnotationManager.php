@@ -109,6 +109,9 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
             if (isset($ymlGenerator['resource'])) {
                 $generator->setResourceName($ymlGenerator['resource']);
             }
+            if (isset($ymlGenerator['options'])) {
+                $generator->setAvailableOptions($ymlGenerator['options']);
+            }
         } else {
             $generator = $this->loadedGenerators[$generatorName];
         }

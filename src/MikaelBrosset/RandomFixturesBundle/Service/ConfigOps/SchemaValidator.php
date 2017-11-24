@@ -6,10 +6,12 @@
  */
 namespace MikaelBrosset\RandomFixturesBundle\Service\ConfigOps;
 
+use MikaelBrosset\RandomFixturesBundle\Annotation\MBRFOptions;
 use MikaelBrosset\RandomFixturesBundle\Exception\MappingNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\MethodNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\PropertyNotFoundException;
 use MikaelBrosset\RandomFixturesBundle\Exception\ResourceNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\UnknownOptionException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Debug\Exception\ClassNotFoundException;
 
@@ -71,17 +73,26 @@ class SchemaValidator
             if (isset($g['resource'])) {
                 $resourceFile = $this->resourcesDir . $g['resource'];
 
-                if (!file_exists($resourceFile) && !is_readable($resourceFile)){
+                if (!file_exists($resourceFile) && !is_readable($resourceFile)) {
                     throw new ResourceNotFoundException($g['resource'], $this->resourcesDir);
                 }
             }
             if (!isset($g['mapping'])) {
                 throw new MappingNotFoundException($name);
             }
+            // Checks config options match MBRFOptions declared options
+            if (isset($g['options'])) {
+                for ($i=0; $i<count($g['options']); $i++) {
+                    $optionName = $g['options'][$i];
+
+                    if (!defined("MikaelBrosset\\RandomFixturesBundle\\Annotation\\MBRFOptions::$optionName")) {
+                        throw new UnknownOptionException($g['options'][$i]);
+                    }
+                }
+            }
             // checks if mapping class is instanciable, else throw Symfony ClassNotFoundException
             //new $g['mapping'];
         }
-
         return $this;
     }
 }

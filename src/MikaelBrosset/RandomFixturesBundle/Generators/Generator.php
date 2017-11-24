@@ -120,4 +120,41 @@ class Generator
             $this->resourceList[$key] = null;
         }
     }
+
+    public function setAvailableOptions(array $options) : Generator
+    {
+        $this->availableOptions = $options;
+        return $this;
+    }
+
+
+    protected function chunkOptions(string $optionsString) : array
+    {
+        $o = [];
+        $options = explode(',', $optionsString);
+        for ($i=0; $i<count($options); $i++) {
+
+            if (substr_count($options[$i], '=') === 0) {
+                throw new WrongOptionFormatException('=', $options[$i], $this->getName());
+            }
+            if (substr_count($options[$i], '=') > 1) {
+                throw new WrongCharacterNumberException('=', $options[$i], $this->getName());
+            }
+            list($key, $value) = explode('=', $options[$i]);
+            $o[trim($key)] = trim($value);
+        }
+        return $o;
+    }
+
+    /**
+     * Checks declared annotation options in entity are available for this property
+     */
+    protected function checkOptionsExists(array $options)
+    {
+        foreach ($options as $o => $val) {
+            if (!defined("MikaelBrosset\\RandomFixturesBundle\\Annotation\\MBRFOptions::$o")) {
+                throw new UnknownPropertyOptionException($this->name, $o, $this->availableOptions);
+            }
+        }
+    }
 }
