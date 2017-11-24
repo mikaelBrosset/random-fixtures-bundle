@@ -7,6 +7,7 @@
 namespace MikaelBrosset\RandomFixturesBundle\Generators;
 
 use MikaelBrosset\RandomFixturesBundle\Exception\ListNotFoundException;
+use MikaelBrosset\RandomFixturesBundle\Exception\OutOfRangeException;
 use MikaelBrosset\RandomFixturesBundle\Exception\ResourceNotFoundException;
 
 class Generator
@@ -89,6 +90,11 @@ class Generator
 
     public function setSomeListElementsAsNull(int $nullable)
     {
+        var_dump($nullable);
+        if ($nullable < 0 || $nullable >100) {
+            throw new OutOfRangeException(0, 100, $this->name);
+        }
+
         // If null is set to 0 or 100, that's easy, so we cut the process
         if ($nullable === 0) {return;
         } elseif ($nullable === 100) {
