@@ -51,6 +51,7 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
     {
         //The annotations coming from class properties (ex: Number of times a class will be copied in db)
         $classAnnot = $this->getEntityClassAnnotations();
+        if (empty($classAnnot)) { return; }
 
         //The annotations coming from entity properties
         $propAnnot  = $this->getEntityPropertiesAnnotations();

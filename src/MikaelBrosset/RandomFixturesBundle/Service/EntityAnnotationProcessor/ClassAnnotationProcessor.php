@@ -20,6 +20,8 @@ class ClassAnnotationProcessor extends PropertiesAnnotationProcessor
 
         // Fills $MBRFClass properties with data from annotations
         $MBRFClassFilled = $this->reader->getClassAnnotation(new \ReflectionClass($this->entity), $this->MBRFClassesReflect['MBRFClassR']->getName());
+        if (is_null($MBRFClassFilled)) { return $data; }
+
 
         // Gets all properties from MBRFClass model...
         $MBRFClassRProp = $this->MBRFClassesReflect['MBRFClassR']->getProperties();
