@@ -13,10 +13,11 @@ class FemaleFirstnameGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function calculateValue(MBRFProp $MBRFPropFilled)
+    public function calculateValue(MBRFProp $MBRFPropFilled) : Generator
     {
         $this->setSomeListElementsAsNull($MBRFPropFilled->getNullable());
+        $this->setValue(trim($this->selectRandom($this->resourceList)));
 
-        $this->setValue($this->selectRandom($this->resourceList));
+        return $this;
     }
 }

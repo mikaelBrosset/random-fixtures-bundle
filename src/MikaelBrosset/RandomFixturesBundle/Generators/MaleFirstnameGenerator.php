@@ -13,9 +13,11 @@ class MaleFirstnameGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function calculateValue(MBRFProp $MBRFPropFilled)
+    public function calculateValue(MBRFProp $MBRFPropFilled) : Generator
     {
-        $maleFirstnames = $this->openFile('male-firstnames');
-        return $this->selectRandom($maleFirstnames);
+        $this->setSomeListElementsAsNull($MBRFPropFilled->getNullable());
+        $this->setValue($this->selectRandom($this->resourceList));
+
+        return $this;
     }
 }

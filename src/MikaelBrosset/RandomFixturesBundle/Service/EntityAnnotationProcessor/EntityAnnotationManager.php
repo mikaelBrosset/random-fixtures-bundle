@@ -71,7 +71,13 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
                 $generator = $this->loadResourceAndGenerator($ymlGenerators, $generatorName);
                 $entityMethod = 'set'. ucfirst($name);
 
-                $entity->$entityMethod($generator->calculateValue($MBRFProp));
+                $value = $generator
+                    ->calculateValue($MBRFProp)
+                    ->getValue();
+
+                $entity->$entityMethod($value);
+                //die(var_dump($value));
+                //die();
             }
             $this->ema->persist($entity);
         }
@@ -85,8 +91,9 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
         $resourceName   = isset($ymlGenerators[$generatorName]['resource']) ? $ymlGenerators[$generatorName]['resource'] : [];
 
         $generator = $this->eagerLoadGenerator($generatorName, $generatorClass, $ymlGenerator);
-        $this->eagerLoadResource($generatorName, $generator, $resourceName);
-
+        if (isset($ymlGenerator['resource'])) {
+            $this->eagerLoadResource($generatorName, $generator, $resourceName);
+        }
         return $generator;
     }
 
@@ -97,8 +104,10 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
                 $this->loadedGenerators[$generatorName] ??
                 $generator = (new $generatorClass())
                     ->setName($generatorName)
-                    ->setResourcePath($ymlGenerator['mapping'])
-                    ->setResourceName($ymlGenerator['resource']);
+                    ->setResourcePath($ymlGenerator['mapping']);
+            if (isset($ymlGenerator['resource'])) {
+                $generator->setResourceName($ymlGenerator['resource']);
+            }
         } else {
             $generator = $this->loadedGenerators[$generatorName];
         }

@@ -13,7 +13,7 @@ class Generator
 {
     private $name = 'std';
     private $resourcePath;
-    private $resourceName;
+    private $resourceName = null;
     private $value;
     private $requirements;
     protected $resourceList;

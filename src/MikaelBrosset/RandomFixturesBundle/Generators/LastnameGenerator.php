@@ -13,8 +13,11 @@ class LastnameGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function calculateValue(MBRFProp $MBRFPropFilled)
+    public function calculateValue(MBRFProp $MBRFPropFilled) : Generator
     {
-        return $this->selectRandom($lastnames);
+        $this->setSomeListElementsAsNull($MBRFPropFilled->getNullable());
+        $this->setValue($this->selectRandom($this->resourceList));
+
+        return $this;
     }
 }

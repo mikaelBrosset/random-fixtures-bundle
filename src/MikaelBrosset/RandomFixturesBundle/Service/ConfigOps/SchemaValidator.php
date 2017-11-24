@@ -24,7 +24,7 @@ class SchemaValidator
         $this->ymlConfig    = $ymlConfig;
         $this->MBRFClasses  = $MBRFClasses;
         $this->absDir       = $absDir;
-        $this->resourcesDir = $absDir . '/MikaelBrosset/RandomFixturesBundle/Generators/Resources/';
+        $this->resourcesDir = $absDir . 'MikaelBrosset/RandomFixturesBundle/Generators/Resources/';
     }
 
     function validateMBRFPropertiesAndSetters() : SchemaValidator
@@ -64,7 +64,7 @@ class SchemaValidator
         return $mandatProps;
     }
 
-    public function validatesGeneratorFiles() : SchemaValidator
+    public function validatesGeneratorAndResources() : SchemaValidator
     {
         foreach ($this->ymlConfig['MBRF']['MBRFProp']['type']['generators'] as $name => $g) {
 

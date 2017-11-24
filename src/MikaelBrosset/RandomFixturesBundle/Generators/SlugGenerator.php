@@ -13,6 +13,8 @@ class SlugGenerator extends Generator implements GeneratorInterface
     /**
      * @inheritdoc
      */
-    public function calculateValue(MBRFProp $MBRFPropFilled)
-    {}
+    public function calculateValue(MBRFProp $MBRFPropFilled) : Generator
+    {
+        return $this;
+    }
 }
