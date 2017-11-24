@@ -87,8 +87,16 @@ class Generator
         }
     }
 
-    public function setSomeListElementsAsNull($nullable)
+    public function setSomeListElementsAsNull(int $nullable)
     {
+        // If null is set to 0 or 100, that's easy, so we cut the process
+        if ($nullable === 0) {return;
+        } elseif ($nullable === 100) {
+            foreach ($this->resourceList as $key => $value) {
+                $this->resourceList[$key] = null;
+            }
+        }
+
         $actualNullables = (int) round(count($this->resourceList) / 100 * $nullable);
         $nulledKeys = [];
 
