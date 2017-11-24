@@ -84,10 +84,4 @@ class SchemaValidator
 
         return $this;
     }
-
-    function handleError($niveau, $message, $fichier, $ligne, $context)
-    {
-        echo "EEERRRROOOORR";
-        exit(255);
-    }
 }

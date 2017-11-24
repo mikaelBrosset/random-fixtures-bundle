@@ -40,7 +40,7 @@ class EntityAnnotationManager extends ClassAnnotationProcessor
         $this->ymlConfig = $ymlConfig;
         $this->ema = $ema;
 
-        $this->MBRFClasses  = $MBRFClasses;
+        $this->MBRFClasses = $MBRFClasses;
         $this->MBRFClassesReflect = $MBRFClassesReflect;
     }
 
